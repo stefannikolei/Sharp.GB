@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharp.GB", "Sharp.GB\Sharp.GB.csproj", "{0ED88576-4034-45B9-88DE-5B1A0FA3D091}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{827229E1-9272-4267-BADB-0AF5A0F06EF8}"
+ProjectSection(SolutionItems) = preProject
+	.editorconfig = .editorconfig
+EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0ED88576-4034-45B9-88DE-5B1A0FA3D091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED88576-4034-45B9-88DE-5B1A0FA3D091}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED88576-4034-45B9-88DE-5B1A0FA3D091}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED88576-4034-45B9-88DE-5B1A0FA3D091}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

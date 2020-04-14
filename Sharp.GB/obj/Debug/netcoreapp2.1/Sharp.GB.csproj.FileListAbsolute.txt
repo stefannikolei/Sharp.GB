@@ -1,0 +1,4 @@
+C:\Users\stefa\RiderProjects\Sharp.GB\Sharp.GB\obj\Debug\netcoreapp2.1\Sharp.GB.csprojAssemblyReference.cache
+C:\Users\stefa\RiderProjects\Sharp.GB\Sharp.GB\obj\Debug\netcoreapp2.1\Sharp.GB.AssemblyInfoInputs.cache
+C:\Users\stefa\RiderProjects\Sharp.GB\Sharp.GB\obj\Debug\netcoreapp2.1\Sharp.GB.AssemblyInfo.cs
+C:\Users\stefa\RiderProjects\Sharp.GB\Sharp.GB\obj\Debug\netcoreapp2.1\Sharp.GB.csproj.CoreCompileInputs.cache
