@@ -1,9 +1,21 @@
-﻿namespace Sharp.GB.Memory
+﻿using System.Collections.Generic;
+using Sharp.GB.Memory.Interface;
+
+namespace Sharp.GB.Memory
 {
     public class Mmu : IAddressSpace
     {
-        private readonly IAddressSpace _bootRom = new Rom(BootRom.GAMEBOY_CLASSIC, 0);
-        private readonly IAddressSpace _ram = new Ram();
+        private readonly List<IAddressSpace> _spaces = new List<IAddressSpace>();
+
+        public void AddAddressSpace(IAddressSpace space)
+        {
+            _spaces.Add(space);
+        }
+        
+        public bool Accepts(int address)
+        {
+            return true;
+        }
 
         public void SetByte(int address, int value)
         {
@@ -17,14 +29,15 @@
 
         private IAddressSpace GetSpace(int address)
         {
-            if (address >= 0x00 && address <= 0xff)
+            foreach (var space in _spaces)
             {
-                return _bootRom;
+                if (space.Accepts(address))
+                {
+                    return space;
+                }
             }
-            else
-            {
-                return _ram;
-            }
+
+            return null;
         }
     }
 }
