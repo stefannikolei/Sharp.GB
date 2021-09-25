@@ -28,17 +28,17 @@ namespace Sharp.GB.Memory
             return new Ram(offset, length, ram);
         }
 
-        public bool Accepts(int address)
+        public bool accepts(int address)
         {
             return address >= _offset && address < _offset + _length;
         }
 
-        public void SetByte(int address, int value)
+        public void setByte(int address, int value)
         {
             _space[address - _offset] = value;
         }
 
-        public int GetByte(int address)
+        public int getByte(int address)
         {
             var index = address - _offset;
 

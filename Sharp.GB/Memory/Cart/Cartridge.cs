@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Sharp.GB.Common;
+using Sharp.GB.Memory.cart.Battery;
+using Sharp.GB.Memory.cart.Type;
 using Sharp.GB.Memory.Extensions;
 using Sharp.GB.Memory.Interface;
 
@@ -13,8 +15,12 @@ namespace Sharp.GB.Memory.cart
     {
         private static string[] s_ValidRomExtension = {".gb", ".gbc", ".rom"};
 
+        private readonly IAddressSpace _addressSpace;
         private readonly string _title;
         private readonly GameboyType _gameboyType;
+        private readonly bool _gbc;
+
+        private int _dmgBoostrap;
 
         public Cartridge(GameboyOptions options)
         {
@@ -29,6 +35,57 @@ namespace Sharp.GB.Memory.cart
             if (ramBanks == 0 && cartridgeType.IsRam())
             {
                 ramBanks = 1;
+            }
+
+            IBattery battery;
+            if (cartridgeType.IsBattery()
+                && !options.DisableBatterySaves)
+            {
+                battery = new FileBattery(options.RomFileName);
+            }
+            else
+            {
+                battery = new MockBattery();
+            }
+
+            if (cartridgeType.IsMbc1())
+            {
+                _addressSpace = new Mbc1(rom, cartridgeType, battery, romBanks, ramBanks);
+            }
+            else if (cartridgeType.IsMbc2())
+            {
+                _addressSpace = new Mbc2(rom, cartridgeType, battery, romBanks);
+            }
+            else if (cartridgeType.IsMbc3())
+            {
+                _addressSpace = new Mbc3(rom, cartridgeType, battery, romBanks, ramBanks);
+            }
+            else if (cartridgeType.IsMbc5())
+            {
+                _addressSpace = new Mbc5(rom, cartridgeType, battery, romBanks, ramBanks);
+            }
+            else
+            {
+                _addressSpace = new Rom(rom, cartridgeType, romBanks, ramBanks);
+            }
+
+            _dmgBoostrap = options.UseBootstrap ? 0 : 1;
+            if (options.ForceCgb)
+            {
+                _gbc = true;
+            }
+            else if (_gameboyType == GameboyType.NonCgb)
+            {
+                _gbc = false;
+            }
+            else if (_gameboyType == GameboyType.Cgb)
+            {
+                _gbc = true;
+            }
+            else
+            {
+                // UNIVERSAL
+                _gbc = !options.ForceDmg;
             }
         }
 
@@ -75,6 +132,8 @@ namespace Sharp.GB.Memory.cart
             {
                 return Load(options.GetRomFileContent());
             }
+
+            throw new ArgumentException(nameof(options));
         }
 
         private static int[] Load(byte[] romFileContent)
@@ -116,7 +175,7 @@ namespace Sharp.GB.Memory.cart
                 _ => throw new ArgumentException("Unsupported ROM size: " + id)
             };
         }
-        
+
         private static int GetRamBanks(int id)
         {
             return id switch
@@ -128,6 +187,47 @@ namespace Sharp.GB.Memory.cart
                 4 => 16,
                 _ => throw new ArgumentException("Unsupported RAM size: " + id)
             };
+        }
+
+        public bool accepts(int address)
+        {
+            return _addressSpace.accepts(address) || address == 0xff50;
+        }
+
+        public void setByte(int address, int value)
+        {
+            if (address == 0xff50)
+            {
+                _dmgBoostrap = 1;
+            }
+            else
+            {
+                _addressSpace.setByte(address, value);
+            }
+        }
+
+        public int getByte(int address)
+        {
+            if (_dmgBoostrap == 0 && !_gbc && (address >= 0x0000 && address < 0x0100))
+            {
+                return BootRom.GAMEBOY_CLASSIC[address];
+            }
+            else if (_dmgBoostrap == 0 && _gbc && address >= 0x000 && address < 0x0100)
+            {
+                return BootRom.GAMEBOY_COLOR[address];
+            }
+            else if (_dmgBoostrap == 0 && _gbc && address >= 0x200 && address < 0x0900)
+            {
+                return BootRom.GAMEBOY_COLOR[address - 0x0100];
+            }
+            else if (address == 0xff50)
+            {
+                return 0xff;
+            }
+            else
+            {
+                return _addressSpace.getByte(address);
+            }
         }
     }
 }

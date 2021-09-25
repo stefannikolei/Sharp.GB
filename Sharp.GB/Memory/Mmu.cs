@@ -12,26 +12,26 @@ namespace Sharp.GB.Memory
             _spaces.Add(space);
         }
         
-        public bool Accepts(int address)
+        public bool accepts(int address)
         {
             return true;
         }
 
-        public void SetByte(int address, int value)
+        public void setByte(int address, int value)
         {
-            GetSpace(address).SetByte(address, value);
+            GetSpace(address).setByte(address, value);
         }
 
-        public int GetByte(int address)
+        public int getByte(int address)
         {
-            return GetSpace(address).GetByte(address);
+            return GetSpace(address).getByte(address);
         }
 
         private IAddressSpace GetSpace(int address)
         {
             foreach (var space in _spaces)
             {
-                if (space.Accepts(address))
+                if (space.accepts(address))
                 {
                     return space;
                 }

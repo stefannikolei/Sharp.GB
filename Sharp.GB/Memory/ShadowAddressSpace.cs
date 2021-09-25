@@ -21,20 +21,20 @@ namespace Sharp.GB.Memory
             _length = length;
         }
 
-        public bool Accepts(int address)
+        public bool accepts(int address)
         {
             return address >= _echoStart && address < _echoStart + _length;
         }
 
 
-        public void SetByte(int address, int value)
+        public void setByte(int address, int value)
         {
-            _addressSpace.SetByte(Translate(address), value);
+            _addressSpace.setByte(Translate(address), value);
         }
 
-        public int GetByte(int address)
+        public int getByte(int address)
         {
-            return _addressSpace.GetByte(Translate(address));
+            return _addressSpace.getByte(Translate(address));
         }
 
         private int Translate(int address)

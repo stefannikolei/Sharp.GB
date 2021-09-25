@@ -11,16 +11,16 @@ namespace Sharp.GB.Memory
 
         public UndocumentedGbcRegisters()
         {
-            _ram.SetByte(0xff74, 0xff);
-            _ram.SetByte(0xff75, 0x8f);
+            _ram.setByte(0xff74, 0xff);
+            _ram.setByte(0xff75, 0x8f);
         }
 
-        public bool Accepts(int address)
+        public bool accepts(int address)
         {
-            return address == 0xff6c || _ram.Accepts(address);
+            return address == 0xff6c || _ram.accepts(address);
         }
 
-        public void SetByte(int address, int value)
+        public void setByte(int address, int value)
         {
             switch (address)
             {
@@ -31,25 +31,25 @@ namespace Sharp.GB.Memory
                 case 0xff72:
                 case 0xff73:
                 case 0xff74:
-                    _ram.SetByte(address, value);
+                    _ram.setByte(address, value);
                     break;
 
                 case 0xff75:
-                    _ram.SetByte(address, 0x8f | (value & 0b01110000));
+                    _ram.setByte(address, 0x8f | (value & 0b01110000));
                     break;
             }
         }
 
-        public int GetByte(int address)
+        public int getByte(int address)
         {
             if (address == 0xff6c)
             {
                 return _xff6c;
             }
 
-            if (_ram.Accepts(address))
+            if (_ram.accepts(address))
             {
-                return _ram.GetByte(address);
+                return _ram.getByte(address);
             }
 
             throw new ArgumentException();

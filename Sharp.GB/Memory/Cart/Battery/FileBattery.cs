@@ -31,7 +31,7 @@ namespace Sharp.GB.Memory.cart.Battery
 
             using var stream = File.OpenRead(_saveFilePath);
             var saveLength = stream.Length;
-            saveLength = saveLength - (saveLength % 0x2000);
+            saveLength = saveLength - saveLength % 0x2000;
             LoadRam(ram, stream, saveLength);
             if (clockData != null)
             {
