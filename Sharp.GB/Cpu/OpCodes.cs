@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Sharp.GB.Cpu.OpCode;
 
 namespace Sharp.GB.Cpu
 {
     public class OpCodes
     {
-        public static readonly List<Opcode> COMMANDS;
+        public static ImmutableList<Opcode> COMMANDS;
 
-        public static readonly List<Opcode> EXT_COMMANDS;
+        public static ImmutableList<Opcode> EXT_COMMANDS;
 
         static OpCodes()
         {
@@ -22,50 +23,60 @@ namespace Sharp.GB.Cpu
                 regLoad(opcodes, t.Key, t.Value, "d16");
             }
 
-            foreach (var t in indexedList(0x02, 0x10, "(BC)", "(DE)")) {
+            foreach (var t in indexedList(0x02, 0x10, "(BC)", "(DE)"))
+            {
                 regLoad(opcodes, t.Key, t.Value, "A");
             }
 
-            foreach (var t in indexedList(0x03, 0x10, "BC", "DE", "HL", "SP")) {
-                regCmd(opcodes, t, "INC {}").load(t.getValue()).alu("INC").store(t.getValue());
+            foreach (var t in indexedList(0x03, 0x10, "BC", "DE", "HL", "SP"))
+            {
+                regCmd(opcodes, t, "INC {}").load(t.Value).alu("INC").store(t.Value);
             }
 
-            foreach (var t in indexedList(0x04, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A")) {
-                regCmd(opcodes, t, "INC {}").load(t.getValue()).alu("INC").store(t.getValue());
+            foreach (var t in indexedList(0x04, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            {
+                regCmd(opcodes, t, "INC {}").load(t.Value).alu("INC").store(t.Value);
             }
 
-            foreach (var t : indexedList(0x05, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A")) {
-                regCmd(opcodes, t, "DEC {}").load(t.getValue()).alu("DEC").store(t.getValue());
+            foreach (var t in indexedList(0x05, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            {
+                regCmd(opcodes, t, "DEC {}").load(t.Value).alu("DEC").store(t.Value);
             }
 
-            foreach (var t : indexedList(0x06, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A")) {
-                regLoad(opcodes, t.getKey(), t.getValue(), "d8");
+            foreach (var t in indexedList(0x06, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            {
+                regLoad(opcodes, t.Key, t.Value, "d8");
             }
 
-            foreach (var o : indexedList(0x07, 0x08, "RLC", "RRC", "RL", "RR")) {
-                regCmd(opcodes, o, o.getValue() + "A").load("A").alu(o.getValue()).clearZ().store("A");
+            foreach (var o in indexedList(0x07, 0x08, "RLC", "RRC", "RL", "RR"))
+            {
+                regCmd(opcodes, o, o.Value + "A").load("A").alu(o.Value).clearZ().store("A");
             }
 
             regLoad(opcodes, 0x08, "(a16)", "SP");
 
-            foreach (var t : indexedList(0x09, 0x10, "BC", "DE", "HL", "SP")) {
-                regCmd(opcodes, t, "ADD HL,{}").load("HL").alu("ADD", t.getValue()).store("HL");
+            foreach (var t in indexedList(0x09, 0x10, "BC", "DE", "HL", "SP"))
+            {
+                regCmd(opcodes, t, "ADD HL,{}").load("HL").alu("ADD", t.Value).store("HL");
             }
 
-            foreach (var t : indexedList(0x0a, 0x10, "(BC)", "(DE)")) {
-                regLoad(opcodes, t.getKey(), "A", t.getValue());
+            foreach (var t in indexedList(0x0a, 0x10, "(BC)", "(DE)"))
+            {
+                regLoad(opcodes, t.Key, "A", t.Value);
             }
 
-            foreach (var t : indexedList(0x0b, 0x10, "BC", "DE", "HL", "SP")) {
-                regCmd(opcodes, t, "DEC {}").load(t.getValue()).alu("DEC").store(t.getValue());
+            foreach (var t in indexedList(0x0b, 0x10, "BC", "DE", "HL", "SP"))
+            {
+                regCmd(opcodes, t, "DEC {}").load(t.Value).alu("DEC").store(t.Value);
             }
 
             regCmd(opcodes, 0x10, "STOP");
 
             regCmd(opcodes, 0x18, "JR r8").load("PC").alu("ADD", "r8").store("PC");
 
-            foreach (Entry<Integer, String> c : indexedList(0x20, 0x08, "NZ", "Z", "NC", "C")) {
-                regCmd(opcodes, c, "JR {},r8").load("PC").proceedIf(c.getValue()).alu("ADD", "r8").store("PC");
+            foreach (var c in indexedList(0x20, 0x08, "NZ", "Z", "NC", "C"))
+            {
+                regCmd(opcodes, c, "JR {},r8").load("PC").proceedIf(c.Value).alu("ADD", "r8").store("PC");
             }
 
             regCmd(opcodes, 0x22, "LD (HL+),A").copyByte("(HL)", "A").aluHL("INC");
@@ -80,60 +91,70 @@ namespace Sharp.GB.Cpu
             regCmd(opcodes, 0x37, "SCF").load("A").alu("SCF").store("A");
             regCmd(opcodes, 0x3f, "CCF").load("A").alu("CCF").store("A");
 
-            foreach (Entry<Integer, String> t : indexedList(0x40, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A")) {
-                foreach (Entry<Integer, String> s : indexedList(t.getKey(), 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
-                    "A")) {
-                    if (s.getKey() == 0x76)
+            foreach (var t in indexedList(0x40, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            {
+                foreach (var s in indexedList(t.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
+                             "A"))
+                {
+                    if (s.Key == 0x76)
                     {
                         continue;
                     }
 
-                    regLoad(opcodes, s.getKey(), t.getValue(), s.getValue());
+                    regLoad(opcodes, s.Key, t.Value, s.Value);
                 }
             }
 
             regCmd(opcodes, 0x76, "HALT");
 
-            foreach (Entry<Integer, String> o : indexedList(0x80, 0x08, "ADD", "ADC", "SUB", "SBC", "AND", "XOR", "OR",
-                "CP")) {
-                foreach (Entry<Integer, String> t : indexedList(o.getKey(), 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
-                    "A")) {
-                    regCmd(opcodes, t, o.getValue() + " {}").load("A").alu(o.getValue(), t.getValue()).store("A");
+            foreach (var o in indexedList(0x80, 0x08, "ADD", "ADC", "SUB", "SBC", "AND", "XOR", "OR",
+                         "CP"))
+            {
+                foreach (var t in indexedList(o.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
+                             "A"))
+                {
+                    regCmd(opcodes, t, o.Value + " {}").load("A").alu(o.Value, t.Value).store("A");
                 }
             }
 
-            foreach (Entry<Integer, String> c : indexedList(0xc0, 0x08, "NZ", "Z", "NC", "C")) {
-                regCmd(opcodes, c, "RET {}").extraCycle().proceedIf(c.getValue()).pop().forceFinish().store("PC");
+            foreach (var c in indexedList(0xc0, 0x08, "NZ", "Z", "NC", "C"))
+            {
+                regCmd(opcodes, c, "RET {}").extraCycle().proceedIf(c.Value).pop().forceFinish().store("PC");
             }
 
-            foreach (Entry<Integer, String> t : indexedList(0xc1, 0x10, "BC", "DE", "HL", "AF")) {
-                regCmd(opcodes, t, "POP {}").pop().store(t.getValue());
+            foreach (var t in indexedList(0xc1, 0x10, "BC", "DE", "HL", "AF"))
+            {
+                regCmd(opcodes, t, "POP {}").pop().store(t.Value);
             }
 
-            foreach (Entry<Integer, String> c : indexedList(0xc2, 0x08, "NZ", "Z", "NC", "C")) {
-                regCmd(opcodes, c, "JP {},a16").load("a16").proceedIf(c.getValue()).store("PC").extraCycle();
+            foreach (var c in indexedList(0xc2, 0x08, "NZ", "Z", "NC", "C"))
+            {
+                regCmd(opcodes, c, "JP {},a16").load("a16").proceedIf(c.Value).store("PC").extraCycle();
             }
 
             regCmd(opcodes, 0xc3, "JP a16").load("a16").store("PC").extraCycle();
 
-            foreach (Entry<Integer, String> c : indexedList(0xc4, 0x08, "NZ", "Z", "NC", "C")) {
-                regCmd(opcodes, c, "CALL {},a16").proceedIf(c.getValue()).extraCycle().load("PC").push().load("a16")
+            foreach (var c in indexedList(0xc4, 0x08, "NZ", "Z", "NC", "C"))
+            {
+                regCmd(opcodes, c, "CALL {},a16").proceedIf(c.Value).extraCycle().load("PC").push().load("a16")
                     .store("PC");
             }
 
-            foreach (Entry<Integer, String> t : indexedList(0xc5, 0x10, "BC", "DE", "HL", "AF")) {
-                regCmd(opcodes, t, "PUSH {}").extraCycle().load(t.getValue()).push();
+            foreach (var t in indexedList(0xc5, 0x10, "BC", "DE", "HL", "AF"))
+            {
+                regCmd(opcodes, t, "PUSH {}").extraCycle().load(t.Value).push();
             }
 
-            foreach (Entry<Integer, String> o : indexedList(0xc6, 0x08, "ADD", "ADC", "SUB", "SBC", "AND", "XOR", "OR",
-                "CP")) {
-                regCmd(opcodes, o, o.getValue() + " d8").load("A").alu(o.getValue(), "d8").store("A");
+            foreach (var o in indexedList(0xc6, 0x08, "ADD", "ADC", "SUB", "SBC", "AND", "XOR", "OR",
+                         "CP"))
+            {
+                regCmd(opcodes, o, o.Value + " d8").load("A").alu(o.Value, "d8").store("A");
             }
 
-            foreach (int i = 0xc7, j = 0x00;
-            i <= 0xf7;
-            i += 0x10, j += 0x10) {
-                regCmd(opcodes, i, String.format("RST %02XH", j)).load("PC").push().forceFinish().loadWord(j)
+            for (int i = 0xc7, j = 0x00; i <= 0xf7; i += 0x10, j += 0x10)
+            {
+                // TODO: Probably string.Format is wrong here
+                regCmd(opcodes, i, string.Format("RST %02XH", j)).load("PC").push().forceFinish().loadWord(j)
                     .store("PC");
             }
 
@@ -143,7 +164,7 @@ namespace Sharp.GB.Cpu
 
             for (int i = 0xcf, j = 0x08; i <= 0xff; i += 0x10, j += 0x10)
             {
-                regCmd(opcodes, i, String.format("RST %02XH", j)).load("PC").push().forceFinish().loadWord(j)
+                regCmd(opcodes, i, string.Format("RST %02XH", j)).load("PC").push().forceFinish().loadWord(j)
                     .store("PC");
             }
 
@@ -168,66 +189,66 @@ namespace Sharp.GB.Cpu
 
             regLoad(opcodes, 0xf9, "SP", "HL").extraCycle();
 
-            for (Entry < Integer, String > o : indexedList(0x00, 0x08, "RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP",
-                "SRL"))
+            foreach (var o in indexedList(0x00, 0x08, "RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP",
+                         "SRL"))
             {
-                for (Entry < Integer, String > t : indexedList(o.getKey(), 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
-                    "A"))
+                foreach (var t in indexedList(o.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
+                             "A"))
                 {
-                    regCmd(extOpcodes, t, o.getValue() + " {}").load(t.getValue()).alu(o.getValue())
-                        .store(t.getValue());
+                    regCmd(extOpcodes, t, o.Value + " {}").load(t.Value).alu(o.Value)
+                        .store(t.Value);
                 }
             }
 
-            for (Entry < Integer, String > o : indexedList(0x40, 0x40, "BIT", "RES", "SET"))
+            foreach (var o in indexedList(0x40, 0x40, "BIT", "RES", "SET"))
             {
                 for (int b = 0; b < 0x08; b++)
                 {
-                    for (Entry < Integer, String > t : indexedList(o.getKey() + b * 0x08, 0x01, "B", "C", "D", "E", "H",
-                        "L", "(HL)", "A"))
+                    foreach (var t in indexedList(o.Key + b * 0x08, 0x01, "B", "C", "D", "E", "H",
+                                 "L", "(HL)", "A"))
                     {
-                        if ("BIT".equals(o.getValue()) && "(HL)".equals(t.getValue()))
+                        if ("BIT".Equals(o.Value) && "(HL)".Equals(t.Value))
                         {
-                            regCmd(extOpcodes, t, String.format("BIT %d,(HL)", b)).bitHL(b);
+                            regCmd(extOpcodes, t, string.Format("BIT %d,(HL)", b)).bitHL(b);
                         }
                         else
                         {
-                            regCmd(extOpcodes, t, String.format("%s %d,%s", o.getValue(), b, t.getValue()))
-                                .load(t.getValue()).alu(o.getValue(), b).store(t.getValue());
+                            regCmd(extOpcodes, t, string.Format("%s %d,%s", o.Value, b, t.Value))
+                                .load(t.Value).alu(o.Value, b).store(t.Value);
                         }
                     }
                 }
             }
 
-            List<Opcode> commands = new ArrayList<>(0x100);
-            List<Opcode> extCommands = new ArrayList<>(0x100);
+            List<Opcode> commands = new(0x100);
+            List<Opcode> extCommands = new(0x100);
 
-            for (OpcodeBuilder b :
-            opcodes) {
+            foreach (OpcodeBuilder b in opcodes)
+            {
                 if (b == null)
                 {
-                    commands.add(null);
+                    commands.Add(null);
                 }
                 else
                 {
-                    commands.add(b.build());
+                    commands.Add(b.build());
                 }
             }
 
-            for (OpcodeBuilder b :
-            extOpcodes) {
+            foreach (OpcodeBuilder b in extOpcodes)
+            {
                 if (b == null)
                 {
-                    extCommands.add(null);
+                    extCommands.Add(null);
                 }
                 else
                 {
-                    extCommands.add(b.build());
+                    extCommands.Add(b.build());
                 }
             }
 
-            COMMANDS = Collections.unmodifiableList(commands);
-            EXT_COMMANDS = Collections.unmodifiableList(extCommands);
+            COMMANDS = commands.ToImmutableList();
+            EXT_COMMANDS = extCommands.ToImmutableList();
         }
 
 

@@ -1,0 +1,31 @@
+using System;
+using Sharp.GB.Cpu.OpCode;
+using Sharp.GB.Gpu;
+using Sharp.GB.Memory.Interface;
+
+namespace Sharp.GB.Cpu.Op.Ops;
+
+public class AluOperationOp(Func<Flags, int, int> func, string operation, DataType lastDataType) : IOp
+{
+    public int execute(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    {
+        return func.Invoke(registers.getFlags(), value);
+    }
+
+    public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
+    {
+        return OpcodeBuilder.causesOemBug(func, context) ? SpriteBug.CorruptionType.INC_DEC : default;
+    }
+
+    public override string ToString()
+    {
+        if (lastDataType == DataType.D16)
+        {
+            return string.Format("%s([__]) → [__]", operation);
+        }
+        else
+        {
+            return string.Format("%s([_]) → [_]", operation);
+        }
+    }
+}

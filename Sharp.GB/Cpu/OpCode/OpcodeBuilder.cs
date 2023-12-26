@@ -1,429 +1,114 @@
-﻿namespace Sharp.GB.Cpu.OpCode
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using Sharp.GB.Common;
+using Sharp.GB.Cpu.Op;
+using Sharp.GB.Cpu.Op.ArgumentImplementations;
+using Sharp.GB.Cpu.Op.Ops;
+using Sharp.GB.Gpu;
+
+namespace Sharp.GB.Cpu.OpCode
 {
     public class OpcodeBuilder
     {
         private static readonly AluFunctions ALU = new AluFunctions();
 
-        private static readonly Set<AluFunctions.IntRegistryFunction> OEM_BUG;
+        private static readonly ImmutableHashSet<Func<Flags, int, int>> OEM_BUG;
 
-        static {
-            Set<AluFunctions.IntRegistryFunction> oemBugFunctions = new HashSet<>();
-            oemBugFunctions.add(ALU.findAluFunction("INC", DataType.D16));
-            oemBugFunctions.add(ALU.findAluFunction("DEC", DataType.D16));
-            OEM_BUG = Collections.unmodifiableSet(oemBugFunctions);
+        static OpcodeBuilder()
+        {
+            HashSet<Func<Flags, int, int>> oemBugFunctions = new HashSet<Func<Flags, int, int>>();
+            oemBugFunctions.Add(ALU.findAluFunction("INC", DataType.D16));
+            oemBugFunctions.Add(ALU.findAluFunction("DEC", DataType.D16));
+            OEM_BUG = oemBugFunctions.ToImmutableHashSet();
         }
 
-        private final int opcode;
+        private readonly int opcode;
 
-        private final String label;
+        private readonly string label;
 
-        private final List<Op> ops = new ArrayList<>();
+        private readonly List<IOp> ops = new();
 
         private DataType lastDataType;
 
-        public OpcodeBuilder(int opcode, String label)
+        public OpcodeBuilder(int opcode, string label)
         {
             this.opcode = opcode;
             this.label = label;
         }
 
-        public OpcodeBuilder copyByte(String target, String source)
+        public OpcodeBuilder copyByte(string target, string source)
         {
             load(source);
             store(target);
             return this;
         }
 
-        public OpcodeBuilder load(String source)
+        public OpcodeBuilder load(string source)
         {
             Argument arg = Argument.parse(source);
             lastDataType = arg.getDataType();
-            ops.add(new Op()
-            {
-                @Override
-                public boolean readsMemory() {
-                return arg.isMemory();
-            }
-
-            @Override
-
-            public int operandLength()
-            {
-                return arg.getOperandLength();
-            }
-
-            @Override
-
-            public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-            {
-                return arg.read(registers, addressSpace, args);
-            }
-
-            @Override
-
-            public String toString()
-            {
-                if (arg.getDataType() == DataType.D16)
-                {
-                    return String.format("%s → [__]", arg.getLabel());
-                }
-                else
-                {
-                    return String.format("%s → [_]", arg.getLabel());
-                }
-            }
-
-            });
+            ops.Add(new BasicOp(arg));
             return this;
         }
 
         public OpcodeBuilder loadWord(int value)
         {
             lastDataType = DataType.D16;
-            ops.add(new Op()
-            {
-                @Override
-                public int execute(Registers registers,
-                AddressSpace addressSpace,
-                int[] args,
-                int context) {
-                return value;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("0x%02X → [__]", value);
-            }
-
-            });
+            ops.Add(new WordOp(value));
             return this;
         }
 
-        public OpcodeBuilder store(String target)
+        public OpcodeBuilder store(string target)
         {
             Argument arg = Argument.parse(target);
-            if (lastDataType == DataType.D16 && arg == Argument._a16)
+            if (lastDataType == DataType.D16 && arg is _A16)
             {
-                ops.add(new Op()
-                {
-                    @Override
-                    public boolean writesMemory() {
-                    return arg.isMemory();
-                }
-
-                @Override
-
-                public int operandLength()
-                {
-                    return arg.getOperandLength();
-                }
-
-                @Override
-
-                public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-                {
-                    addressSpace.setByte(toWord(args), context & 0x00ff);
-                    return context;
-                }
-
-                @Override
-
-                public String toString()
-                {
-                    return String.format("[ _] → %s", arg.getLabel());
-                }
-
-                });
-                ops.add(new Op()
-                {
-                    @Override
-                    public boolean writesMemory() {
-                    return arg.isMemory();
-                }
-
-                @Override
-
-                public int operandLength()
-                {
-                    return arg.getOperandLength();
-                }
-
-                @Override
-
-                public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-                {
-                    addressSpace.setByte((toWord(args) + 1) & 0xffff, (context & 0xff00) >> 8);
-                    return context;
-                }
-
-                @Override
-
-                public String toString()
-                {
-                    return String.format("[_ ] → %s", arg.getLabel());
-                }
-
-                });
+                ops.Add(new _A16Op1(arg));
+                ops.Add(new _A16Op2(arg));
             }
             else if (lastDataType == arg.getDataType())
             {
-                ops.add(new Op()
-                {
-                    @Override
-                    public boolean writesMemory() {
-                    return arg.isMemory();
-                }
-
-                @Override
-
-                public int operandLength()
-                {
-                    return arg.getOperandLength();
-                }
-
-                @Override
-
-                public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-                {
-                    arg.write(registers, addressSpace, args, context);
-                    return context;
-                }
-
-                @Override
-
-                public String toString()
-                {
-                    if (arg.getDataType() == DataType.D16)
-                    {
-                        return String.format("[__] → %s", arg.getLabel());
-                    }
-                    else
-                    {
-                        return String.format("[_] → %s", arg.getLabel());
-                    }
-                }
-
-                });
+                ops.Add(new WriteOp(arg));
             }
             else
             {
-                throw new IllegalStateException("Can't write " + lastDataType + " to " + target);
+                throw new ArgumentOutOfRangeException("Can't write " + lastDataType + " to " + target);
             }
 
             return this;
         }
 
-        public OpcodeBuilder proceedIf(String condition)
+        public OpcodeBuilder proceedIf(string condition)
         {
-            ops.add(new Op()
-            {
-                @Override
-                public boolean proceed(Registers registers) {
-                switch (condition) {
-                case "NZ":
-                return !registers.getFlags().isZ();
-                case "Z":
-                return registers.getFlags().isZ();
-                case "NC":
-                return !registers.getFlags().isC();
-                case "C":
-                return registers.getFlags().isC();
-            }
-            return false;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("? %s:", condition);
-            }
-
-            });
+            ops.Add(new ProceedOp(condition));
             return this;
         }
 
         public OpcodeBuilder push()
         {
-            AluFunctions.IntRegistryFunction dec = ALU.findAluFunction("DEC", DataType.D16);
-            ops.add(new Op()
-            {
-                @Override
-                public boolean writesMemory() {
-                return true;
-            }
-
-            @Override
-
-            public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-            {
-                registers.setSP(dec.apply(registers.getFlags(), registers.getSP()));
-                addressSpace.setByte(registers.getSP(), (context & 0xff00) >> 8);
-                return context;
-            }
-
-            @Override
-
-            public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
-            {
-                return inOamArea(registers.getSP()) ? SpriteBug.CorruptionType.PUSH_1 : null;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("[_ ] → (SP--)");
-            }
-
-            });
-            ops.add(new Op()
-            {
-                @Override
-                public boolean writesMemory() {
-                return true;
-            }
-
-            @Override
-
-            public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-            {
-                registers.setSP(dec.apply(registers.getFlags(), registers.getSP()));
-                addressSpace.setByte(registers.getSP(), context & 0x00ff);
-                return context;
-            }
-
-            @Override
-
-            public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
-            {
-                return inOamArea(registers.getSP()) ? SpriteBug.CorruptionType.PUSH_2 : null;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("[ _] → (SP--)");
-            }
-
-            });
+            var dec = ALU.findAluFunction("DEC", DataType.D16);
+            ops.Add(new PushOp(dec));
+            ops.Add(new PushOp2(dec));
             return this;
         }
 
         public OpcodeBuilder pop()
         {
-            AluFunctions.IntRegistryFunction inc = ALU.findAluFunction("INC", DataType.D16);
+            var inc = ALU.findAluFunction("INC", DataType.D16);
 
             lastDataType = DataType.D16;
-            ops.add(new Op()
-            {
-                @Override
-                public boolean readsMemory() {
-                return true;
-            }
-
-            @Override
-
-            public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-            {
-                int lsb = addressSpace.getByte(registers.getSP());
-                registers.setSP(inc.apply(registers.getFlags(), registers.getSP()));
-                return lsb;
-            }
-
-            @Override
-
-            public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
-            {
-                return inOamArea(registers.getSP()) ? SpriteBug.CorruptionType.POP_1 : null;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("(SP++) → [ _]");
-            }
-
-            });
-            ops.add(new Op()
-            {
-                @Override
-                public boolean readsMemory() {
-                return true;
-            }
-
-            @Override
-
-            public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-            {
-                int msb = addressSpace.getByte(registers.getSP());
-                registers.setSP(inc.apply(registers.getFlags(), registers.getSP()));
-                return context | (msb << 8);
-            }
-
-            @Override
-
-            public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
-            {
-                return inOamArea(registers.getSP()) ? SpriteBug.CorruptionType.POP_2 : null;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("(SP++) → [_ ]");
-            }
-
-            });
+            ops.Add(new PopOp1(inc));
+            ops.Add(new PopOp2(inc));
             return this;
         }
 
         public OpcodeBuilder alu(String operation, String argument2)
         {
             Argument arg2 = Argument.parse(argument2);
-            AluFunctions.BiIntRegistryFunction func = ALU.findAluFunction(operation, lastDataType, arg2.getDataType());
-            ops.add(new Op()
-            {
-                @Override
-                public boolean readsMemory() {
-                return arg2.isMemory();
-            }
+            var func = ALU.findAluFunction(operation, lastDataType, arg2.getDataType());
+            ops.Add(new AluOp(func, arg2, operation, lastDataType));
 
-            @Override
-
-            public int operandLength()
-            {
-                return arg2.getOperandLength();
-            }
-
-            @Override
-
-            public int execute(Registers registers, AddressSpace addressSpace, int[] args, int v1)
-            {
-                int v2 = arg2.read(registers, addressSpace, args);
-                return func.apply(registers.getFlags(), v1, v2);
-            }
-
-            @Override
-
-            public String toString()
-            {
-                if (lastDataType == DataType.D16)
-                {
-                    return String.format("%s([__],%s) → [__]", operation, arg2);
-                }
-                else
-                {
-                    return String.format("%s([_],%s) → [_]", operation, arg2);
-                }
-            }
-
-            });
             if (lastDataType == DataType.D16)
             {
                 extraCycle();
@@ -434,27 +119,8 @@
 
         public OpcodeBuilder alu(String operation, int d8Value)
         {
-            AluFunctions.BiIntRegistryFunction func = ALU.findAluFunction(operation, lastDataType, DataType.D8);
-            ops.add(new Op()
-            {
-                @Override
-                public int execute(Registers registers,
-                AddressSpace addressSpace,
-                int[] args,
-                int v1) {
-                return func.apply(registers.getFlags(),
-                v1,
-                d8Value);
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("%s(%d,[_]) → [_]", operation, d8Value);
-            }
-
-            });
+            var func = ALU.findAluFunction(operation, lastDataType, DataType.D8);
+            ops.Add(new AluD8Op(func, operation, d8Value));
             if (lastDataType == DataType.D16)
             {
                 extraCycle();
@@ -465,40 +131,8 @@
 
         public OpcodeBuilder alu(String operation)
         {
-            AluFunctions.IntRegistryFunction func = ALU.findAluFunction(operation, lastDataType);
-            ops.add(new Op()
-            {
-                @Override
-                public int execute(Registers registers,
-                AddressSpace addressSpace,
-                int[] args,
-                int value) {
-                return func.apply(registers.getFlags(),
-                value);
-            }
-
-            @Override
-
-            public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
-            {
-                return OpcodeBuilder.causesOemBug(func, context) ? SpriteBug.CorruptionType.INC_DEC : null;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                if (lastDataType == DataType.D16)
-                {
-                    return String.format("%s([__]) → [__]", operation);
-                }
-                else
-                {
-                    return String.format("%s([_]) → [_]", operation);
-                }
-            }
-
-            });
+            var func = ALU.findAluFunction(operation, lastDataType);
+            ops.Add(new AluOperationOp(func, operation, lastDataType));
             if (lastDataType == DataType.D16)
             {
                 extraCycle();
@@ -601,7 +235,7 @@
             return this;
         }
 
-        public OpcodeBuilder switchInterrupts(boolean enable, boolean withDelay)
+        public OpcodeBuilder switchInterrupts(bool enable, bool withDelay)
         {
             ops.add(new Op()
             {
@@ -676,17 +310,17 @@
             return new Opcode(this);
         }
 
-        int getOpcode()
+        public int GetOpcode()
         {
             return opcode;
         }
 
-        String getLabel()
+        public string GetLabel()
         {
             return label;
         }
 
-        List<Op> getOps()
+        public List<IOp> GetOps()
         {
             return ops;
         }
@@ -697,9 +331,9 @@
             return label;
         }
 
-        private static boolean causesOemBug(AluFunctions.IntRegistryFunction function, int context)
+        public static bool causesOemBug(Func<Flags, int, int> function, int context)
         {
-            return OEM_BUG.contains(function) && inOamArea(context);
+            return OEM_BUG.Contains(function) && inOamArea(context);
         }
 
         private static bool inOamArea(int address)
