@@ -13,7 +13,7 @@ namespace Sharp.GB.Memory.cart
 {
     public class Cartridge : IAddressSpace
     {
-        private static string[] s_ValidRomExtension = {".gb", ".gbc", ".rom"};
+        private static string[] s_validRomExtension = [".gb", ".gbc", ".rom"];
 
         private readonly IAddressSpace _addressSpace;
         private readonly string _title;
@@ -38,8 +38,7 @@ namespace Sharp.GB.Memory.cart
             }
 
             IBattery battery;
-            if (cartridgeType.IsBattery()
-                && !options.DisableBatterySaves)
+            if (cartridgeType.IsBattery() && !options.DisableBatterySaves)
             {
                 battery = new FileBattery(options.RomFileName);
             }
@@ -106,7 +105,6 @@ namespace Sharp.GB.Memory.cart
             return t.ToString();
         }
 
-
         private static IReadOnlyList<int> LoadRom(GameboyOptions options)
         {
             var extension = options.GetRomFileExtension();
@@ -117,7 +115,7 @@ namespace Sharp.GB.Memory.cart
                 foreach (var zipEntry in zip.Entries)
                 {
                     extension = Path.GetExtension(zipEntry.Name);
-                    if (!s_ValidRomExtension.Contains(extension))
+                    if (!s_validRomExtension.Contains(extension))
                     {
                         continue;
                     }
@@ -189,12 +187,14 @@ namespace Sharp.GB.Memory.cart
             };
         }
 
-        public bool accepts(int address)
+        public bool IsGbc => _gbc;
+
+        public bool Accepts(int address)
         {
-            return _addressSpace.accepts(address) || address == 0xff50;
+            return _addressSpace.Accepts(address) || address == 0xff50;
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             if (address == 0xff50)
             {
@@ -202,23 +202,23 @@ namespace Sharp.GB.Memory.cart
             }
             else
             {
-                _addressSpace.setByte(address, value);
+                _addressSpace.SetByte(address, value);
             }
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             if (_dmgBoostrap == 0 && !_gbc && (address >= 0x0000 && address < 0x0100))
             {
-                return BootRom.GAMEBOY_CLASSIC[address];
+                return BootRom.GameboyClassic[address];
             }
             else if (_dmgBoostrap == 0 && _gbc && address >= 0x000 && address < 0x0100)
             {
-                return BootRom.GAMEBOY_COLOR[address];
+                return BootRom.GameboyColor[address];
             }
             else if (_dmgBoostrap == 0 && _gbc && address >= 0x200 && address < 0x0900)
             {
-                return BootRom.GAMEBOY_COLOR[address - 0x0100];
+                return BootRom.GameboyColor[address - 0x0100];
             }
             else if (address == 0xff50)
             {
@@ -226,7 +226,7 @@ namespace Sharp.GB.Memory.cart
             }
             else
             {
-                return _addressSpace.getByte(address);
+                return _addressSpace.GetByte(address);
             }
         }
     }

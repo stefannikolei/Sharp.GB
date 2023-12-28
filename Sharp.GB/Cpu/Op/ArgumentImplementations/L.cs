@@ -9,13 +9,13 @@ public class L : Argument
     {
     }
 
-    public override int read(Registers registers, IAddressSpace addressSpace, int[] args)
+    public override int Read(Registers registers, IAddressSpace addressSpace, int[] args)
     {
-        return registers.getL();
+        return registers.GetL();
     }
 
-    public override void write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    public override void Write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
     {
-        registers.setL(value);
+        registers.SetL(value);
     }
 }

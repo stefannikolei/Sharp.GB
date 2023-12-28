@@ -1,342 +1,224 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Sharp.GB.Common;
 using Sharp.GB.Cpu.Op;
 using Sharp.GB.Cpu.Op.ArgumentImplementations;
 using Sharp.GB.Cpu.Op.Ops;
-using Sharp.GB.Gpu;
 
 namespace Sharp.GB.Cpu.OpCode
 {
     public class OpcodeBuilder
     {
-        private static readonly AluFunctions ALU = new AluFunctions();
+        private static readonly AluFunctions s_alu = new AluFunctions();
 
-        private static readonly ImmutableHashSet<Func<Flags, int, int>> OEM_BUG;
+        private static readonly ImmutableHashSet<Func<Flags, int, int>> s_oemBug;
 
         static OpcodeBuilder()
         {
-            HashSet<Func<Flags, int, int>> oemBugFunctions = new HashSet<Func<Flags, int, int>>();
-            oemBugFunctions.Add(ALU.findAluFunction("INC", DataType.D16));
-            oemBugFunctions.Add(ALU.findAluFunction("DEC", DataType.D16));
-            OEM_BUG = oemBugFunctions.ToImmutableHashSet();
+            HashSet<Func<Flags, int, int>> oemBugFunctions =
+            [
+                s_alu.FindAluFunction("INC", DataType.D16),
+                s_alu.FindAluFunction("DEC", DataType.D16)
+            ];
+            s_oemBug = oemBugFunctions.ToImmutableHashSet();
         }
 
-        private readonly int opcode;
+        private readonly int _opcode;
 
-        private readonly string label;
+        private readonly string _label;
 
-        private readonly List<IOp> ops = new();
+        private readonly List<IOp> _ops = new();
 
-        private DataType lastDataType;
+        private DataType _lastDataType;
 
         public OpcodeBuilder(int opcode, string label)
         {
-            this.opcode = opcode;
-            this.label = label;
+            this._opcode = opcode;
+            this._label = label;
         }
 
-        public OpcodeBuilder copyByte(string target, string source)
+        public OpcodeBuilder CopyByte(string target, string source)
         {
-            load(source);
-            store(target);
+            Load(source);
+            Store(target);
             return this;
         }
 
-        public OpcodeBuilder load(string source)
+        public OpcodeBuilder Load(string source)
         {
-            Argument arg = Argument.parse(source);
-            lastDataType = arg.getDataType();
-            ops.Add(new BasicOp(arg));
+            Argument arg = Argument.Parse(source);
+            _lastDataType = arg.GetDataType();
+            _ops.Add(new BasicOp(arg));
             return this;
         }
 
-        public OpcodeBuilder loadWord(int value)
+        public OpcodeBuilder LoadWord(int value)
         {
-            lastDataType = DataType.D16;
-            ops.Add(new WordOp(value));
+            _lastDataType = DataType.D16;
+            _ops.Add(new WordOp(value));
             return this;
         }
 
-        public OpcodeBuilder store(string target)
+        public OpcodeBuilder Store(string target)
         {
-            Argument arg = Argument.parse(target);
-            if (lastDataType == DataType.D16 && arg is _A16)
+            Argument arg = Argument.Parse(target);
+            if (_lastDataType == DataType.D16 && arg is A162)
             {
-                ops.Add(new _A16Op1(arg));
-                ops.Add(new _A16Op2(arg));
+                _ops.Add(new A16Op1(arg));
+                _ops.Add(new A16Op2(arg));
             }
-            else if (lastDataType == arg.getDataType())
+            else if (_lastDataType == arg.GetDataType())
             {
-                ops.Add(new WriteOp(arg));
+                _ops.Add(new WriteOp(arg));
             }
             else
             {
-                throw new ArgumentOutOfRangeException("Can't write " + lastDataType + " to " + target);
+                throw new ArgumentOutOfRangeException(
+                    "Can't write " + _lastDataType + " to " + target
+                );
             }
 
             return this;
         }
 
-        public OpcodeBuilder proceedIf(string condition)
+        public OpcodeBuilder ProceedIf(string condition)
         {
-            ops.Add(new ProceedOp(condition));
+            _ops.Add(new ProceedOp(condition));
             return this;
         }
 
-        public OpcodeBuilder push()
+        public OpcodeBuilder Push()
         {
-            var dec = ALU.findAluFunction("DEC", DataType.D16);
-            ops.Add(new PushOp(dec));
-            ops.Add(new PushOp2(dec));
+            var dec = s_alu.FindAluFunction("DEC", DataType.D16);
+            _ops.Add(new PushOp(dec));
+            _ops.Add(new PushOp2(dec));
             return this;
         }
 
-        public OpcodeBuilder pop()
+        public OpcodeBuilder Pop()
         {
-            var inc = ALU.findAluFunction("INC", DataType.D16);
+            var inc = s_alu.FindAluFunction("INC", DataType.D16);
 
-            lastDataType = DataType.D16;
-            ops.Add(new PopOp1(inc));
-            ops.Add(new PopOp2(inc));
+            _lastDataType = DataType.D16;
+            _ops.Add(new PopOp1(inc));
+            _ops.Add(new PopOp2(inc));
             return this;
         }
 
-        public OpcodeBuilder alu(String operation, String argument2)
+        public OpcodeBuilder Alu(string operation, string argument2)
         {
-            Argument arg2 = Argument.parse(argument2);
-            var func = ALU.findAluFunction(operation, lastDataType, arg2.getDataType());
-            ops.Add(new AluOp(func, arg2, operation, lastDataType));
+            Argument arg2 = Argument.Parse(argument2);
+            var func = s_alu.FindAluFunction(operation, _lastDataType, arg2.GetDataType());
+            _ops.Add(new AluOp(func, arg2, operation, _lastDataType));
 
-            if (lastDataType == DataType.D16)
+            if (_lastDataType == DataType.D16)
             {
-                extraCycle();
+                ExtraCycle();
             }
 
             return this;
         }
 
-        public OpcodeBuilder alu(String operation, int d8Value)
+        public OpcodeBuilder Alu(string operation, int d8Value)
         {
-            var func = ALU.findAluFunction(operation, lastDataType, DataType.D8);
-            ops.Add(new AluD8Op(func, operation, d8Value));
-            if (lastDataType == DataType.D16)
+            var func = s_alu.FindAluFunction(operation, _lastDataType, DataType.D8);
+            _ops.Add(new AluD8Op(func, operation, d8Value));
+            if (_lastDataType == DataType.D16)
             {
-                extraCycle();
+                ExtraCycle();
             }
 
             return this;
         }
 
-        public OpcodeBuilder alu(String operation)
+        public OpcodeBuilder Alu(string operation)
         {
-            var func = ALU.findAluFunction(operation, lastDataType);
-            ops.Add(new AluOperationOp(func, operation, lastDataType));
-            if (lastDataType == DataType.D16)
+            var func = s_alu.FindAluFunction(operation, _lastDataType);
+            _ops.Add(new AluOperationOp(func, operation, _lastDataType));
+            if (_lastDataType == DataType.D16)
             {
-                extraCycle();
+                ExtraCycle();
             }
 
             return this;
         }
 
-        public OpcodeBuilder aluHL(String operation)
+        public OpcodeBuilder AluHl(string operation)
         {
-            load("HL");
-            AluFunctions.IntRegistryFunction func = ALU.findAluFunction(operation, DataType.D16);
-            ops.add(new Op()
-            {
-                @Override
-                public int execute(Registers registers,
-                AddressSpace addressSpace,
-                int[] args,
-                int value) {
-                return func.apply(registers.getFlags(),
-                value);
-            }
-
-            @Override
-
-            public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
-            {
-                return OpcodeBuilder.causesOemBug(func, context) ? SpriteBug.CorruptionType.LD_HL : null;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("%s(HL) → [__]");
-            }
-
-            });
-            store("HL");
+            Load("HL");
+            var func = s_alu.FindAluFunction(operation, DataType.D16);
+            _ops.Add(new AluHlOp(func));
+            Store("HL");
             return this;
         }
 
-        public OpcodeBuilder bitHL(int bit)
+        public OpcodeBuilder BitHl(int bit)
         {
-            ops.add(new Op()
-            {
-                @Override
-                public boolean readsMemory() {
-                return true;
-            }
-
-            @Override
-
-            public int execute(Registers registers, AddressSpace addressSpace, int[] args, int context)
-            {
-                int value = addressSpace.getByte(registers.getHL());
-                Flags flags = registers.getFlags();
-                flags.setN(false);
-                flags.setH(true);
-                if (bit < 8)
-                {
-                    flags.setZ(!BitUtils.getBit(value, bit));
-                }
-
-                return context;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("BIT(%d,HL)", bit);
-            }
-
-            });
+            _ops.Add(new BitHlOp(bit));
             return this;
         }
 
-        public OpcodeBuilder clearZ()
+        public OpcodeBuilder ClearZ()
         {
-            ops.add(new Op()
-            {
-                @Override
-                public int execute(Registers registers,
-                AddressSpace addressSpace,
-                int[] args,
-                int context) {
-                registers.getFlags().setZ(false);
-                return context;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return String.format("0 → Z");
-            }
-
-            });
+            _ops.Add(new ClearZOp());
             return this;
         }
 
-        public OpcodeBuilder switchInterrupts(bool enable, bool withDelay)
+        public OpcodeBuilder SwitchInterrupts(bool enable, bool withDelay)
         {
-            ops.add(new Op()
-            {
-                @Override
-                public void switchInterrupts(InterruptManager interruptManager) {
-                if (enable) {
-                interruptManager.enableInterrupts(withDelay);
-            } else {
-                interruptManager.disableInterrupts(withDelay);
-            }
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return (enable ? "enable" : "disable") + " interrupts";
-            }
-
-            });
+            _ops.Add(new SwitchInterruptsOp(enable, withDelay));
             return this;
         }
 
-        public OpcodeBuilder op(Op op)
+        public OpcodeBuilder Op(IOp op)
         {
-            ops.add(op);
+            _ops.Add(op);
             return this;
         }
 
-        public OpcodeBuilder extraCycle()
+        public OpcodeBuilder ExtraCycle()
         {
-            ops.add(new Op()
-            {
-                @Override
-                public boolean readsMemory() {
-                return true;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return "wait cycle";
-            }
-
-            });
+            _ops.Add(new ExtraCycleOp());
             return this;
         }
 
-        public OpcodeBuilder forceFinish()
+        public OpcodeBuilder ForceFinish()
         {
-            ops.add(new Op()
-            {
-                @Override
-                public boolean forceFinishCycle() {
-                return true;
-            }
-
-            @Override
-
-            public String toString()
-            {
-                return "finish cycle";
-            }
-
-            });
+            _ops.Add(new ForceFinishOp());
             return this;
         }
 
-        public Opcode build()
+        public Opcode Build()
         {
             return new Opcode(this);
         }
 
         public int GetOpcode()
         {
-            return opcode;
+            return _opcode;
         }
 
         public string GetLabel()
         {
-            return label;
+            return _label;
         }
 
         public List<IOp> GetOps()
         {
-            return ops;
+            return _ops;
         }
 
-
-        public String toString()
+        public override string ToString()
         {
-            return label;
+            return _label;
         }
 
-        public static bool causesOemBug(Func<Flags, int, int> function, int context)
+        public static bool CausesOemBug(Func<Flags, int, int> function, int context)
         {
-            return OEM_BUG.Contains(function) && inOamArea(context);
+            return s_oemBug.Contains(function) && InOamArea(context);
         }
 
-        private static bool inOamArea(int address)
+        private static bool InOamArea(int address)
         {
             return address >= 0xfe00 && address <= 0xfeff;
         }

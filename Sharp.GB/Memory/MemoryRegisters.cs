@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Sharp.GB.Memory.Extensions;
 using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Memory
@@ -44,16 +43,14 @@ namespace Sharp.GB.Memory
             }
         }
 
-        public void put(IRegister register, int value2)
+        public void Put(IRegister register, int value2)
         {
-            
-                if (_registers.ContainsKey(register.GetAddress()))
-                {
-                    _values[register.GetAddress()] = value2;
-                }
+            if (_registers.ContainsKey(register.GetAddress()))
+            {
+                _values[register.GetAddress()] = value2;
+            }
 
-                throw new ArgumentException("No valid register " + register);
-            
+            throw new ArgumentException("No valid register " + register);
         }
 
         public MemoryRegisters Freeze()
@@ -72,12 +69,12 @@ namespace Sharp.GB.Memory
             throw new ArgumentException("No valid register " + register);
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return _registers.ContainsKey(address);
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             if (_registers[address].Type.AllowsWrite)
             {
@@ -85,7 +82,7 @@ namespace Sharp.GB.Memory
             }
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             if (_registers[address].Type.AllowsRead)
             {

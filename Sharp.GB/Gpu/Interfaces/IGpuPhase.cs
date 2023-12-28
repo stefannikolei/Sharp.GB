@@ -2,6 +2,6 @@
 {
     public interface IGpuPhase
     {
-        bool tick();
+        bool Tick();
     }
 }

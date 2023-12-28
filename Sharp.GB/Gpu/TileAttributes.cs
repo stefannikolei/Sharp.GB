@@ -2,50 +2,61 @@
 {
     public class TileAttributes
     {
-        public static readonly TileAttributes EMPTY;
+        public static readonly TileAttributes Empty;
 
-        private static readonly TileAttributes[] ATTRIBUTES;
+        private static readonly TileAttributes[] s_attributes;
 
-        static TileAttributes() {
-            ATTRIBUTES = new TileAttributes[256];
-            for (int i = 0; i < 256; i++) {
-                ATTRIBUTES[i] = new TileAttributes(i);
+        static TileAttributes()
+        {
+            s_attributes = new TileAttributes[256];
+            for (int i = 0; i < 256; i++)
+            {
+                s_attributes[i] = new TileAttributes(i);
             }
-            EMPTY = ATTRIBUTES[0];
+
+            Empty = s_attributes[0];
         }
 
-        private readonly int value;
+        private readonly int _value;
 
-        private TileAttributes(int value) {
-            this.value = value;
+        private TileAttributes(int value)
+        {
+            this._value = value;
         }
 
-        public static TileAttributes valueOf(int value) {
-            return ATTRIBUTES[value];
+        public static TileAttributes ValueOf(int value)
+        {
+            return s_attributes[value];
         }
 
-        public bool isPriority() {
-            return (value & (1 << 7)) != 0;
+        public bool IsPriority()
+        {
+            return (_value & (1 << 7)) != 0;
         }
 
-        public bool isYflip() {
-            return (value & (1 << 6)) != 0;
+        public bool IsYflip()
+        {
+            return (_value & (1 << 6)) != 0;
         }
 
-        public bool isXflip() {
-            return (value & (1 << 5)) != 0;
+        public bool IsXflip()
+        {
+            return (_value & (1 << 5)) != 0;
         }
 
-        public GpuRegister getDmgPalette() {
-            return (value & (1 << 4)) == 0 ? GpuRegister.OBP0() : GpuRegister.OBP1();
+        public GpuRegister GetDmgPalette()
+        {
+            return (_value & (1 << 4)) == 0 ? GpuRegister.Obp0 : GpuRegister.Obp1;
         }
 
-        public int getBank() {
-            return (value & (1 << 3)) == 0 ? 0 : 1;
+        public int GetBank()
+        {
+            return (_value & (1 << 3)) == 0 ? 0 : 1;
         }
 
-        public int getColorPaletteIndex() {
-            return value & 0x07;
+        public int GetColorPaletteIndex()
+        {
+            return _value & 0x07;
         }
     }
 }

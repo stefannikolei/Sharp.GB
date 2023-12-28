@@ -5,32 +5,32 @@ namespace Sharp.GB.Memory
 {
     public class DmaAddressSpace : IAddressSpace
     {
-        private readonly IAddressSpace addressSpace;
+        private readonly IAddressSpace _addressSpace;
 
         public DmaAddressSpace(IAddressSpace addressSpace)
         {
-            this.addressSpace = addressSpace;
+            this._addressSpace = addressSpace;
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return true;
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             throw new NotSupportedException();
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             if (address < 0xe000)
             {
-                return addressSpace.getByte(address);
+                return _addressSpace.GetByte(address);
             }
             else
             {
-                return addressSpace.getByte(address - 0x2000);
+                return _addressSpace.GetByte(address - 0x2000);
             }
         }
     }

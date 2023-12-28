@@ -11,12 +11,12 @@ public class A16 : Argument
     {
     }
 
-    public override int read(Registers registers, IAddressSpace addressSpace, int[] args)
+    public override int Read(Registers registers, IAddressSpace addressSpace, int[] args)
     {
-        return BitUtils.toWord(args);
+        return BitUtils.ToWord(args);
     }
 
-    public override void write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    public override void Write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
     {
         throw new NotSupportedException();
     }

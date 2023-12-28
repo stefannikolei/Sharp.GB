@@ -2,17 +2,17 @@
 {
     public class VBlankPhase : IGpuPhase
     {
-        private int ticks;
+        private int _ticks;
 
-        public VBlankPhase start()
+        public VBlankPhase Start()
         {
-            ticks = 0;
+            _ticks = 0;
             return this;
         }
 
-        public bool tick()
+        public bool Tick()
         {
-            return ++ticks < 456;
+            return ++_ticks < 456;
         }
     }
 }

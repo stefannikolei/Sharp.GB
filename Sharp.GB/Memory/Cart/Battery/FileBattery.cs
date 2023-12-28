@@ -22,7 +22,7 @@ namespace Sharp.GB.Memory.cart.Battery
             SaveRamWithClock(ram, null);
         }
 
-        public void LoadRamWithClock(int[] ram, long[] clockData)
+        public void LoadRamWithClock(int[] ram, long[]? clockData)
         {
             if (!File.Exists(_saveFilePath))
             {
@@ -43,8 +43,8 @@ namespace Sharp.GB.Memory.cart.Battery
         {
             throw new NotImplementedException();
         }
-        
-        
+
+
         private void SaveClock(long[] clockData)
         {
             throw new NotImplementedException();
@@ -63,14 +63,14 @@ namespace Sharp.GB.Memory.cart.Battery
             }
         }
 
-        public void SaveRamWithClock(int[] ram, long[] clockData)
+        public void SaveRamWithClock(int[] ram, long[]? clockData)
         {
             var buffer = new byte[ram.Length];
             for (var i = 0; i < ram.Length; i++)
             {
                 buffer[i] = (byte)ram[i];
             }
-            
+
             File.WriteAllBytes(_saveFilePath, buffer);
             if (clockData != null)
             {

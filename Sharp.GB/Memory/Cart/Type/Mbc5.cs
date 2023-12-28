@@ -13,7 +13,7 @@ namespace Sharp.GB.Memory.cart.Type
         private readonly IReadOnlyList<int> _cartridge;
         private readonly int[] _ram;
         private readonly IBattery _battery;
-        
+
         private int _selectedRamBank;
         private int _selectedRomBank = 1;
         private bool _ramWriteEnabled;
@@ -34,13 +34,13 @@ namespace Sharp.GB.Memory.cart.Type
             battery.LoadRam(_ram);
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return (address >= 0x0000 && address < 0x8000) ||
                    (address >= 0xa000 && address < 0xc000);
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             if (address >= 0x0000 && address < 0x2000)
             {
@@ -81,7 +81,7 @@ namespace Sharp.GB.Memory.cart.Type
             return _selectedRamBank * 0x2000 + (address - 0xa000);
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             if (address >= 0x0000 && address < 0x4000)
             {

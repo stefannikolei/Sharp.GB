@@ -1,30 +1,32 @@
-﻿using Sharp.GB.Memory.Interface;
+﻿using System.Collections.Generic;
+using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Cpu
 {
     public class InterruptType
     {
-        public static InterruptType VBlank() => new InterruptType(0x0040, 0);
-        public static InterruptType LCDC => new InterruptType(0x0048, 1);
+        public static List<InterruptType> All => [VBlank, Lcdc, Timer, Serial, P1013];
+        public static InterruptType VBlank => new InterruptType(0x0040, 0);
+        public static InterruptType Lcdc => new InterruptType(0x0048, 1);
         public static InterruptType Timer => new InterruptType(0x0050, 2);
         public static InterruptType Serial => new InterruptType(0x0058, 3);
-        public static InterruptType P10_13 => new InterruptType(0x0060, 4);
+        public static InterruptType P1013 => new InterruptType(0x0060, 4);
 
-        private readonly int handler;
+        private readonly int _handler;
         private readonly int _number;
 
         private InterruptType(int handler, int number)
         {
-            this.handler = handler;
+            this._handler = handler;
             _number = number;
         }
 
-        public int getHandler()
+        public int GetHandler()
         {
-            return handler;
+            return _handler;
         }
 
-        public int ordinal()
+        public int Ordinal()
         {
             return _number;
         }
@@ -32,132 +34,129 @@ namespace Sharp.GB.Cpu
 
     public class InterruptManager : IAddressSpace
     {
-        private readonly bool gbc;
+        private readonly bool _gbc;
 
-        private bool ime;
+        private bool _ime;
 
-        private int interruptFlag = 0xe1;
+        private int _interruptFlag = 0xe1;
 
-        private int interruptEnabled;
+        private int _interruptEnabled;
 
-        private int pendingEnableInterrupts = -1;
+        private int _pendingEnableInterrupts = -1;
 
-        private int pendingDisableInterrupts = -1;
+        private int _pendingDisableInterrupts = -1;
 
         public InterruptManager(bool gbc)
         {
-            this.gbc = gbc;
+            this._gbc = gbc;
         }
 
-        public void enableInterrupts(bool withDelay)
+        public void EnableInterrupts(bool withDelay)
         {
-            pendingDisableInterrupts = -1;
+            _pendingDisableInterrupts = -1;
             if (withDelay)
             {
-                if (pendingEnableInterrupts == -1)
+                if (_pendingEnableInterrupts == -1)
                 {
-                    pendingEnableInterrupts = 1;
+                    _pendingEnableInterrupts = 1;
                 }
             }
             else
             {
-                pendingEnableInterrupts = -1;
-                ime = true;
+                _pendingEnableInterrupts = -1;
+                _ime = true;
             }
         }
 
-        public void disableInterrupts(bool withDelay)
+        public void DisableInterrupts(bool withDelay)
         {
-            pendingEnableInterrupts = -1;
-            if (withDelay && gbc)
+            _pendingEnableInterrupts = -1;
+            if (withDelay && _gbc)
             {
-                if (pendingDisableInterrupts == -1)
+                if (_pendingDisableInterrupts == -1)
                 {
-                    pendingDisableInterrupts = 1;
+                    _pendingDisableInterrupts = 1;
                 }
             }
             else
             {
-                pendingDisableInterrupts = -1;
-                ime = false;
+                _pendingDisableInterrupts = -1;
+                _ime = false;
             }
         }
 
-        public void requestInterrupt(InterruptType type)
+        public void RequestInterrupt(InterruptType type)
         {
-            interruptFlag = interruptFlag | (1 << type.ordinal());
+            _interruptFlag = _interruptFlag | (1 << type.Ordinal());
         }
 
-        public void clearInterrupt(InterruptType type)
+        public void ClearInterrupt(InterruptType type)
         {
-            interruptFlag = interruptFlag & ~(1 << type.ordinal());
+            _interruptFlag = _interruptFlag & ~(1 << type.Ordinal());
         }
 
-        public void onInstructionFinished()
+        public void OnInstructionFinished()
         {
-            if (pendingEnableInterrupts != -1)
+            if (_pendingEnableInterrupts != -1)
             {
-                if (pendingEnableInterrupts-- == 0)
+                if (_pendingEnableInterrupts-- == 0)
                 {
-                    enableInterrupts(false);
+                    EnableInterrupts(false);
                 }
             }
 
-            if (pendingDisableInterrupts != -1)
+            if (_pendingDisableInterrupts != -1)
             {
-                if (pendingDisableInterrupts-- == 0)
+                if (_pendingDisableInterrupts-- == 0)
                 {
-                    disableInterrupts(false);
+                    DisableInterrupts(false);
                 }
             }
         }
 
-        public bool isIme()
+        public bool IsIme()
         {
-            return ime;
+            return _ime;
         }
 
-        public bool isInterruptRequested()
+        public bool IsInterruptRequested()
         {
-            return (interruptFlag & interruptEnabled) != 0;
+            return (_interruptFlag & _interruptEnabled) != 0;
         }
 
-        public bool isHaltBug()
+        public bool IsHaltBug()
         {
-            return (interruptFlag & interruptEnabled & 0x1f) != 0 && !ime;
+            return (_interruptFlag & _interruptEnabled & 0x1f) != 0 && !_ime;
         }
 
-
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return address == 0xff0f || address == 0xffff;
         }
 
-
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             switch (address)
             {
                 case 0xff0f:
-                    interruptFlag = value | 0xe0;
+                    _interruptFlag = value | 0xe0;
                     break;
 
                 case 0xffff:
-                    interruptEnabled = value;
+                    _interruptEnabled = value;
                     break;
             }
         }
 
-
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             switch (address)
             {
                 case 0xff0f:
-                    return interruptFlag;
+                    return _interruptFlag;
 
                 case 0xffff:
-                    return interruptEnabled;
+                    return _interruptEnabled;
 
                 default:
                     return 0xff;

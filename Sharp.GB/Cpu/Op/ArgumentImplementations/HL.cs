@@ -2,20 +2,20 @@ using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Cpu.Op.ArgumentImplementations;
 
-public class HL : Argument
+public class Hl : Argument
 {
-    public HL()
+    public Hl()
         : base("HL", 0, false, DataType.D16)
     {
     }
 
-    public override int read(Registers registers, IAddressSpace addressSpace, int[] args)
+    public override int Read(Registers registers, IAddressSpace addressSpace, int[] args)
     {
-        return registers.getHL();
+        return registers.GetHl();
     }
 
-    public override void write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    public override void Write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
     {
-        registers.setHL(value);
+        registers.SetHl(value);
     }
 }

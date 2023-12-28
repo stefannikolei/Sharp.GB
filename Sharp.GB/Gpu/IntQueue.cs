@@ -4,76 +4,76 @@ namespace Sharp.GB.Gpu
 {
     public class IntQueue
     {
-        private readonly int[] array;
+        private readonly int[] _array;
 
-        private int size;
+        private int _size;
 
-        private int offset = 0;
+        private int _offset = 0;
 
         public IntQueue(int capacity)
         {
-            this.array = new int[capacity];
-            this.size = 0;
-            this.offset = 0;
+            _array = new int[capacity];
+            _size = 0;
+            _offset = 0;
         }
 
         public int Size()
         {
-            return size;
+            return _size;
         }
 
-        public void enqueue(int value)
+        public void Enqueue(int value)
         {
-            if (size == array.Length)
+            if (_size == _array.Length)
             {
                 throw new ArgumentOutOfRangeException("Queue is full");
             }
 
-            array[(offset + size) % array.Length] = value;
-            size++;
+            _array[(_offset + _size) % _array.Length] = value;
+            _size++;
         }
 
-        public int dequeue()
+        public int Dequeue()
         {
-            if (size == 0)
+            if (_size == 0)
             {
                 throw new ArgumentNullException("Queue is empty");
             }
 
-            size--;
-            int value = array[offset++];
-            if (offset == array.Length)
+            _size--;
+            int value = _array[_offset++];
+            if (_offset == _array.Length)
             {
-                offset = 0;
+                _offset = 0;
             }
 
             return value;
         }
 
-        public int get(int index)
+        public int Get(int index)
         {
-            if (index >= size)
+            if (index >= _size)
             {
                 throw new IndexOutOfRangeException();
             }
 
-            return array[(offset + index) % array.Length];
+            return _array[(_offset + index) % _array.Length];
         }
 
-        public void set(int index, int value)
+        public void Set(int index, int value)
         {
-            if (index >= size)
+            if (index >= _size)
             {
                 throw new IndexOutOfRangeException();
             }
 
-            array[(offset + index) % array.Length] = value;
+            _array[(_offset + index) % _array.Length] = value;
         }
 
-        public void clear()
+        public void Clear()
         {
-            size = 0;
-            offset = 0;
+            _size = 0;
+            _offset = 0;
         }
     }
 }

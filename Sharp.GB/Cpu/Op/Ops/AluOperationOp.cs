@@ -5,16 +5,17 @@ using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Cpu.Op.Ops;
 
-public class AluOperationOp(Func<Flags, int, int> func, string operation, DataType lastDataType) : IOp
+public class AluOperationOp(Func<Flags, int, int> func, string operation, DataType lastDataType)
+    : IOp
 {
-    public int execute(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int value)
     {
-        return func.Invoke(registers.getFlags(), value);
+        return func.Invoke(registers.GetFlags(), value);
     }
 
-    public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
+    public SpriteBug.CorruptionType? CausesOemBug(Registers registers, int context)
     {
-        return OpcodeBuilder.causesOemBug(func, context) ? SpriteBug.CorruptionType.INC_DEC : default;
+        return OpcodeBuilder.CausesOemBug(func, context) ? SpriteBug.CorruptionType.IncDec : null;
     }
 
     public override string ToString()

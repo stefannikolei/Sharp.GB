@@ -1,130 +1,145 @@
-﻿using Sharp.GB.Memory;
+﻿using System;
+using Sharp.GB.Memory;
 using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Gpu.Phase
 {
     public class PixelTransfer : IGpuPhase
     {
-        private readonly IPixelFifo fifo;
+        private readonly IPixelFifo _fifo;
 
-        private readonly Fetcher fetcher;
+        private readonly Fetcher _fetcher;
 
-        private readonly IDisplay display;
+        private readonly IDisplay _display;
 
-        private readonly MemoryRegisters r;
+        private readonly MemoryRegisters _r;
 
-        private readonly Lcdc lcdc;
+        private readonly Lcdc _lcdc;
 
-        private readonly bool gbc;
+        private readonly bool _gbc;
 
-        private OamSearch.SpritePosition[] sprites;
+        private OamSearch.SpritePosition?[]? _sprites;
 
-        private int droppedPixels;
+        private int _droppedPixels;
 
-        private int x;
+        private int _x;
 
-        private bool window;
+        private bool _window;
 
-        public PixelTransfer(IAddressSpace videoRam0, IAddressSpace videoRam1, IAddressSpace oemRam, IDisplay display,
-            Lcdc lcdc, MemoryRegisters r, bool gbc, ColorPalette bgPalette, ColorPalette oamPalette)
+        public PixelTransfer(
+            IAddressSpace videoRam0,
+            IAddressSpace? videoRam1,
+            IAddressSpace oemRam,
+            IDisplay display,
+            Lcdc lcdc,
+            MemoryRegisters r,
+            bool gbc,
+            ColorPalette bgPalette,
+            ColorPalette oamPalette
+        )
         {
-            this.r = r;
-            this.lcdc = lcdc;
-            this.gbc = gbc;
+            this._r = r;
+            this._lcdc = lcdc;
+            this._gbc = gbc;
             if (gbc)
             {
-                this.fifo = new ColorPixelFifo(lcdc, display, bgPalette, oamPalette);
+                _fifo = new ColorPixelFifo(lcdc, display, bgPalette, oamPalette);
             }
             else
             {
-                this.fifo = new DmgPixelFifo(display, lcdc, r);
+                _fifo = new DmgPixelFifo(display, lcdc, r);
             }
 
-            this.fetcher = new Fetcher(fifo, videoRam0, videoRam1, oemRam, lcdc, r, gbc);
-            this.display = display;
+            _fetcher = new Fetcher(_fifo, videoRam0, videoRam1, oemRam, lcdc, r, gbc);
+            this._display = display;
         }
 
-        public PixelTransfer start(OamSearch.SpritePosition[] sprites)
+        public PixelTransfer Start(OamSearch.SpritePosition?[] sprites)
         {
-            this.sprites = sprites;
-            droppedPixels = 0;
-            x = 0;
-            window = false;
+            this._sprites = sprites;
+            _droppedPixels = 0;
+            _x = 0;
+            _window = false;
 
-            fetcher.init();
-            if (gbc || lcdc.isBgAndWindowDisplay())
+            _fetcher.Init();
+            if (_gbc || _lcdc.IsBgAndWindowDisplay())
             {
-                startFetchingBackground();
+                StartFetchingBackground();
             }
             else
             {
-                fetcher.FetchingDisabled();
+                _fetcher.FetchingDisabled();
             }
 
             return this;
         }
 
-        public bool tick()
+        public bool Tick()
         {
-            fetcher.tick();
-            if (lcdc.isBgAndWindowDisplay() || gbc)
+            _fetcher.Tick();
+            if (_lcdc.IsBgAndWindowDisplay() || _gbc)
             {
-                if (fifo.getLength() <= 8)
+                if (_fifo.GetLength() <= 8)
                 {
                     return true;
                 }
 
-                if (droppedPixels < r[GpuRegister.SCX()] % 8)
+                if (_droppedPixels < _r[GpuRegister.Scx] % 8)
                 {
-                    fifo.dropPixel();
-                    droppedPixels++;
+                    _fifo.DropPixel();
+                    _droppedPixels++;
                     return true;
                 }
 
-                if (!window && lcdc.isWindowDisplay() && r[GpuRegister.LY()] >= r[GpuRegister.WY()] &&
-                    x == r[GpuRegister.WX()] - 7)
+                if (
+                    !_window
+                    && _lcdc.IsWindowDisplay()
+                    && _r[GpuRegister.Ly] >= _r[GpuRegister.Wy]
+                    && _x == _r[GpuRegister.Wx] - 7
+                )
                 {
-                    window = true;
-                    startFetchingWindow();
+                    _window = true;
+                    StartFetchingWindow();
                     return true;
                 }
             }
 
-            if (lcdc.isObjDisplay())
+            if (_lcdc.IsObjDisplay())
             {
-                if (fetcher.spriteInProgress())
+                if (_fetcher.SpriteInProgress())
                 {
                     return true;
                 }
 
                 bool spriteAdded = false;
-                for (int i = 0; i < sprites.Length; i++)
+                ArgumentNullException.ThrowIfNull(_sprites);
+                for (int i = 0; i < _sprites.Length; i++)
                 {
-                    OamSearch.SpritePosition s = sprites[i];
+                    OamSearch.SpritePosition? s = _sprites[i];
                     if (s == null)
                     {
                         continue;
                     }
 
-                    if (x == 0 && s.getX() < 8)
+                    if (_x == 0 && s.GetX() < 8)
                     {
                         if (!spriteAdded)
                         {
-                            fetcher.addSprite(s, 8 - s.getX(), i);
+                            _fetcher.AddSprite(s, 8 - s.GetX(), i);
                             spriteAdded = true;
                         }
 
-                        sprites[i] = null;
+                        _sprites[i] = null;
                     }
-                    else if (s.getX() - 8 == x)
+                    else if (s.GetX() - 8 == _x)
                     {
                         if (!spriteAdded)
                         {
-                            fetcher.addSprite(s, 0, i);
+                            _fetcher.AddSprite(s, 0, i);
                             spriteAdded = true;
                         }
 
-                        sprites[i] = null;
+                        _sprites[i] = null;
                     }
 
                     if (spriteAdded)
@@ -134,8 +149,8 @@ namespace Sharp.GB.Gpu.Phase
                 }
             }
 
-            fifo.putPixelToScreen();
-            if (++x == 160)
+            _fifo.PutPixelToScreen();
+            if (++_x == 160)
             {
                 return false;
             }
@@ -143,22 +158,32 @@ namespace Sharp.GB.Gpu.Phase
             return true;
         }
 
-        private void startFetchingBackground()
+        private void StartFetchingBackground()
         {
-            int bgX = r[GpuRegister.SCX()] / 0x08;
-            int bgY = (r[GpuRegister.SCY()] + r[GpuRegister.LY()]) % 0x100;
+            int bgX = _r[GpuRegister.Scx] / 0x08;
+            int bgY = (_r[GpuRegister.Scy] + _r[GpuRegister.Ly]) % 0x100;
 
-            fetcher.startFetching(lcdc.getBgTileMapDisplay() + (bgY / 0x08) * 0x20, lcdc.getBgWindowTileData(), bgX,
-                lcdc.isBgWindowTileDataSigned(), bgY % 0x08);
+            _fetcher.StartFetching(
+                _lcdc.GetBgTileMapDisplay() + (bgY / 0x08) * 0x20,
+                _lcdc.GetBgWindowTileData(),
+                bgX,
+                _lcdc.IsBgWindowTileDataSigned(),
+                bgY % 0x08
+            );
         }
 
-        private void startFetchingWindow()
+        private void StartFetchingWindow()
         {
-            int winX = (this.x - r[GpuRegister.WX()] + 7) / 0x08;
-            int winY = r[GpuRegister.LY()] - r[GpuRegister.WY()];
+            int winX = (_x - _r[GpuRegister.Wx] + 7) / 0x08;
+            int winY = _r[GpuRegister.Ly] - _r[GpuRegister.Wy];
 
-            fetcher.startFetching(lcdc.getWindowTileMapDisplay() + (winY / 0x08) * 0x20, lcdc.getBgWindowTileData(),
-                winX, lcdc.isBgWindowTileDataSigned(), winY % 0x08);
+            _fetcher.StartFetching(
+                _lcdc.GetWindowTileMapDisplay() + (winY / 0x08) * 0x20,
+                _lcdc.GetBgWindowTileData(),
+                winX,
+                _lcdc.IsBgWindowTileDataSigned(),
+                winY % 0x08
+            );
         }
     }
 }

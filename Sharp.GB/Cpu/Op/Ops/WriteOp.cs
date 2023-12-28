@@ -4,31 +4,31 @@ namespace Sharp.GB.Cpu.Op.Ops;
 
 public class WriteOp(Argument arg) : IOp
 {
-    public bool writesMemory()
+    public bool WritesMemory()
     {
-        return arg.isMemory();
+        return arg.IsMemory();
     }
 
-    public int operandLength()
+    public int OperandLength()
     {
-        return arg.getOperandLength();
+        return arg.GetOperandLength();
     }
 
-    public int execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
+    public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
     {
-        arg.write(registers, addressSpace, args, context);
+        arg.Write(registers, addressSpace, args, context);
         return context;
     }
 
     public override string ToString()
     {
-        if (arg.getDataType() == DataType.D16)
+        if (arg.GetDataType() == DataType.D16)
         {
-            return string.Format("[__] → %s", arg.getLabel());
+            return string.Format("[__] → %s", arg.GetLabel());
         }
         else
         {
-            return string.Format("[_] → %s", arg.getLabel());
+            return string.Format("[_] → %s", arg.GetLabel());
         }
     }
 }

@@ -8,17 +8,16 @@ namespace Sharp.GB.Cpu.Op
         bool ReadsMemory() => false;
         bool WritesMemory() => false;
         int OperandLength() => 0;
-        int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context) => context;
+        int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context) =>
+            context;
 
-        void SwitchInterrupts(InterruptManager interruptManager)
-        {
-        }
+        void SwitchInterrupts(InterruptManager interruptManager) { }
 
         bool Proceed(Registers registers) => true;
         bool ForceFinishCycle() => false;
-        SpriteBug.CorruptionType CausesOemBug(Registers registers, int context) => default;
+        SpriteBug.CorruptionType? CausesOemBug(Registers registers, int context) => null;
 
-        static bool inOamArea(int address)
+        static bool InOamArea(int address)
         {
             return address >= 0xfe00 && address <= 0xfeff;
         }

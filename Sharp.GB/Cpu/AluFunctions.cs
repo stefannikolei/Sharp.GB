@@ -1,358 +1,507 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Sharp.GB.Common;
 
 namespace Sharp.GB.Cpu
 {
     public enum DataType
     {
-        D8, D16, R8, UNDEFINED
+        D8,
+        D16,
+        R8,
+        Undefined
     }
 
     public class AluFunctions
     {
-        private Dictionary<FunctionKey, Func<Flags, int, int>> functions = new();
+        private Dictionary<FunctionKey, Func<Flags, int, int>> _functions = new();
 
-        private Dictionary<FunctionKey, Func<Flags, int, int, int>> biFunctions = new();
+        private Dictionary<FunctionKey, Func<Flags, int, int, int>> _biFunctions = new();
 
-        public Func<Flags, int, int> findAluFunction(String name, DataType argumentType)
+        public Func<Flags, int, int> FindAluFunction(string name, DataType argumentType)
         {
-            return functions[new FunctionKey(name, argumentType)];
+            return _functions.First(x => x.Key.Name == name && x.Key.Type1 == argumentType).Value;
         }
 
-        public Func<Flags, int, int, int> findAluFunction(String name, DataType arg1Type, DataType arg2Type)
+        public Func<Flags, int, int, int> FindAluFunction(
+            string name,
+            DataType arg1Type,
+            DataType arg2Type
+        )
         {
-            return biFunctions[new FunctionKey(name, arg1Type, arg2Type)];
+            return _biFunctions
+                .First(
+                    x => x.Key.Name == name && x.Key.Type1 == arg1Type && x.Key.Type2 == arg2Type
+                )
+                .Value;
         }
 
-        private void registerAluFunction(String name, DataType dataType, Func<Flags, int, int> function)
+        private void RegisterAluFunction(
+            string name,
+            DataType dataType,
+            Func<Flags, int, int> function
+        )
         {
-            functions.Add(new FunctionKey(name, dataType), function);
+            _functions.Add(new FunctionKey(name, dataType), function);
         }
 
-        private void registerAluFunction(String name, DataType dataType1, DataType dataType2,
-            Func<Flags, int, int, int> function)
+        private void RegisterAluFunction(
+            string name,
+            DataType dataType1,
+            DataType dataType2,
+            Func<Flags, int, int, int> function
+        )
         {
-            biFunctions.Add(new FunctionKey(name, dataType1, dataType2), function);
+            _biFunctions.Add(new FunctionKey(name, dataType1, dataType2), function);
         }
-
 
         public AluFunctions()
         {
-            registerAluFunction("INC", DataType.D8, (flags, arg) =>
-            {
-                int result = (arg + 1) & 0xff;
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH((arg & 0x0f) == 0x0f);
-                return result;
-            });
-            registerAluFunction("INC", DataType.D16, (flags, arg) => (arg + 1) & 0xffff);
-            registerAluFunction("DEC", DataType.D8, (flags, arg) =>
-            {
-                int result = (arg - 1) & 0xff;
-                flags.setZ(result == 0);
-                flags.setN(true);
-                flags.setH((arg & 0x0f) == 0x0);
-                return result;
-            });
-            registerAluFunction("DEC", DataType.D16, (flags, arg) => (arg - 1) & 0xffff);
-            registerAluFunction("ADD", DataType.D16, DataType.D16, (flags, arg1, arg2) =>
-            {
-                flags.setN(false);
-                flags.setH((arg1 & 0x0fff) + (arg2 & 0x0fff) > 0x0fff);
-                flags.setC(arg1 + arg2 > 0xffff);
-                return (arg1 + arg2) & 0xffff;
-            });
-            registerAluFunction("ADD", DataType.D16, DataType.R8, (flags, arg1, arg2) => (arg1 + arg2) & 0xffff);
-            registerAluFunction("ADD_SP", DataType.D16, DataType.R8, (flags, arg1, arg2) =>
-            {
-                flags.setZ(false);
-                flags.setN(false);
-
-                int result = arg1 + arg2;
-                flags.setC((((arg1 & 0xff) + (arg2 & 0xff)) & 0x100) != 0);
-                flags.setH((((arg1 & 0x0f) + (arg2 & 0x0f)) & 0x10) != 0);
-                return result & 0xffff;
-            });
-            registerAluFunction("DAA", DataType.D8, (flags, arg) =>
-            {
-                int result = arg;
-                if (flags.isN())
+            RegisterAluFunction(
+                "INC",
+                DataType.D8,
+                (flags, arg) =>
                 {
-                    if (flags.isH())
+                    int result = (arg + 1) & 0xff;
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH((arg & 0x0f) == 0x0f);
+                    return result;
+                }
+            );
+            RegisterAluFunction("INC", DataType.D16, (flags, arg) => (arg + 1) & 0xffff);
+            RegisterAluFunction(
+                "DEC",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = (arg - 1) & 0xff;
+                    flags.SetZ(result == 0);
+                    flags.SetN(true);
+                    flags.SetH((arg & 0x0f) == 0x0);
+                    return result;
+                }
+            );
+            RegisterAluFunction("DEC", DataType.D16, (flags, arg) => (arg - 1) & 0xffff);
+            RegisterAluFunction(
+                "ADD",
+                DataType.D16,
+                DataType.D16,
+                (flags, arg1, arg2) =>
+                {
+                    flags.SetN(false);
+                    flags.SetH((arg1 & 0x0fff) + (arg2 & 0x0fff) > 0x0fff);
+                    flags.SetC(arg1 + arg2 > 0xffff);
+                    return (arg1 + arg2) & 0xffff;
+                }
+            );
+            RegisterAluFunction(
+                "ADD",
+                DataType.D16,
+                DataType.R8,
+                (flags, arg1, arg2) => (arg1 + arg2) & 0xffff
+            );
+            RegisterAluFunction(
+                "ADD_SP",
+                DataType.D16,
+                DataType.R8,
+                (flags, arg1, arg2) =>
+                {
+                    flags.SetZ(false);
+                    flags.SetN(false);
+
+                    int result = arg1 + arg2;
+                    flags.SetC((((arg1 & 0xff) + (arg2 & 0xff)) & 0x100) != 0);
+                    flags.SetH((((arg1 & 0x0f) + (arg2 & 0x0f)) & 0x10) != 0);
+                    return result & 0xffff;
+                }
+            );
+            RegisterAluFunction(
+                "DAA",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = arg;
+                    if (flags.IsN())
                     {
-                        result = (result - 6) & 0xff;
+                        if (flags.IsH())
+                        {
+                            result = (result - 6) & 0xff;
+                        }
+
+                        if (flags.IsC())
+                        {
+                            result = (result - 0x60) & 0xff;
+                        }
+                    }
+                    else
+                    {
+                        if (flags.IsH() || (result & 0xf) > 9)
+                        {
+                            result += 0x06;
+                        }
+
+                        if (flags.IsC() || result > 0x9f)
+                        {
+                            result += 0x60;
+                        }
                     }
 
-                    if (flags.isC())
+                    flags.SetH(false);
+                    if (result > 0xff)
                     {
-                        result = (result - 0x60) & 0xff;
-                    }
-                }
-                else
-                {
-                    if (flags.isH() || (result & 0xf) > 9)
-                    {
-                        result += 0x06;
+                        flags.SetC(true);
                     }
 
-                    if (flags.isC() || result > 0x9f)
+                    result &= 0xff;
+                    flags.SetZ(result == 0);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "CPL",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    flags.SetN(true);
+                    flags.SetH(true);
+                    return (~arg) & 0xff;
+                }
+            );
+            RegisterAluFunction(
+                "SCF",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    flags.SetC(true);
+                    return arg;
+                }
+            );
+            RegisterAluFunction(
+                "CCF",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    flags.SetC(!flags.IsC());
+                    return arg;
+                }
+            );
+            RegisterAluFunction(
+                "ADD",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    flags.SetZ(((byte1 + byte2) & 0xff) == 0);
+                    flags.SetN(false);
+                    flags.SetH((byte1 & 0x0f) + (byte2 & 0x0f) > 0x0f);
+                    flags.SetC(byte1 + byte2 > 0xff);
+                    return (byte1 + byte2) & 0xff;
+                }
+            );
+            RegisterAluFunction(
+                "ADC",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    int carry = flags.IsC() ? 1 : 0;
+                    flags.SetZ(((byte1 + byte2 + carry) & 0xff) == 0);
+                    flags.SetN(false);
+                    flags.SetH((byte1 & 0x0f) + (byte2 & 0x0f) + carry > 0x0f);
+                    flags.SetC(byte1 + byte2 + carry > 0xff);
+                    return (byte1 + byte2 + carry) & 0xff;
+                }
+            );
+            RegisterAluFunction(
+                "SUB",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    flags.SetZ(((byte1 - byte2) & 0xff) == 0);
+                    flags.SetN(true);
+                    flags.SetH((0x0f & byte2) > (0x0f & byte1));
+                    flags.SetC(byte2 > byte1);
+                    return (byte1 - byte2) & 0xff;
+                }
+            );
+            RegisterAluFunction(
+                "SBC",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    int carry = flags.IsC() ? 1 : 0;
+                    int res = byte1 - byte2 - carry;
+
+                    flags.SetZ((res & 0xff) == 0);
+                    flags.SetN(true);
+                    flags.SetH(((byte1 ^ byte2 ^ (res & 0xff)) & (1 << 4)) != 0);
+                    flags.SetC(res < 0);
+                    return res & 0xff;
+                }
+            );
+            RegisterAluFunction(
+                "AND",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    int result = byte1 & byte2;
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(true);
+                    flags.SetC(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "OR",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    int result = byte1 | byte2;
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    flags.SetC(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "XOR",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    int result = (byte1 ^ byte2) & 0xff;
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    flags.SetC(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "CP",
+                DataType.D8,
+                DataType.D8,
+                (flags, byte1, byte2) =>
+                {
+                    flags.SetZ(((byte1 - byte2) & 0xff) == 0);
+                    flags.SetN(true);
+                    flags.SetH((0x0f & byte2) > (0x0f & byte1));
+                    flags.SetC(byte2 > byte1);
+                    return byte1;
+                }
+            );
+            RegisterAluFunction(
+                "RLC",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = (arg << 1) & 0xff;
+                    if ((arg & (1 << 7)) != 0)
                     {
-                        result += 0x60;
+                        result |= 1;
+                        flags.SetC(true);
                     }
-                }
+                    else
+                    {
+                        flags.SetC(false);
+                    }
 
-                flags.setH(false);
-                if (result > 0xff)
-                {
-                    flags.setC(true);
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    return result;
                 }
+            );
+            RegisterAluFunction(
+                "RRC",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = arg >> 1;
+                    if ((arg & 1) == 1)
+                    {
+                        result |= (1 << 7);
+                        flags.SetC(true);
+                    }
+                    else
+                    {
+                        flags.SetC(false);
+                    }
 
-                result &= 0xff;
-                flags.setZ(result == 0);
-                return result;
-            });
-            registerAluFunction("CPL", DataType.D8, (flags, arg) =>
-            {
-                flags.setN(true);
-                flags.setH(true);
-                return (~arg) & 0xff;
-            });
-            registerAluFunction("SCF", DataType.D8, (flags, arg) =>
-            {
-                flags.setN(false);
-                flags.setH(false);
-                flags.setC(true);
-                return arg;
-            });
-            registerAluFunction("CCF", DataType.D8, (flags, arg) =>
-            {
-                flags.setN(false);
-                flags.setH(false);
-                flags.setC(!flags.isC());
-                return arg;
-            });
-            registerAluFunction("ADD", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                flags.setZ(((byte1 + byte2) & 0xff) == 0);
-                flags.setN(false);
-                flags.setH((byte1 & 0x0f) + (byte2 & 0x0f) > 0x0f);
-                flags.setC(byte1 + byte2 > 0xff);
-                return (byte1 + byte2) & 0xff;
-            });
-            registerAluFunction("ADC", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                int carry = flags.isC() ? 1 : 0;
-                flags.setZ(((byte1 + byte2 + carry) & 0xff) == 0);
-                flags.setN(false);
-                flags.setH((byte1 & 0x0f) + (byte2 & 0x0f) + carry > 0x0f);
-                flags.setC(byte1 + byte2 + carry > 0xff);
-                return (byte1 + byte2 + carry) & 0xff;
-            });
-            registerAluFunction("SUB", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                flags.setZ(((byte1 - byte2) & 0xff) == 0);
-                flags.setN(true);
-                flags.setH((0x0f & byte2) > (0x0f & byte1));
-                flags.setC(byte2 > byte1);
-                return (byte1 - byte2) & 0xff;
-            });
-            registerAluFunction("SBC", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                int carry = flags.isC() ? 1 : 0;
-                int res = byte1 - byte2 - carry;
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "RL",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = (arg << 1) & 0xff;
+                    result |= flags.IsC() ? 1 : 0;
+                    flags.SetC((arg & (1 << 7)) != 0);
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "RR",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = arg >> 1;
+                    result |= flags.IsC() ? (1 << 7) : 0;
+                    flags.SetC((arg & 1) != 0);
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "SLA",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = (arg << 1) & 0xff;
+                    flags.SetC((arg & (1 << 7)) != 0);
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "SRA",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = (arg >> 1) | (arg & (1 << 7));
+                    flags.SetC((arg & 1) != 0);
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "SWAP",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int upper = arg & 0xf0;
+                    int lower = arg & 0x0f;
+                    int result = (lower << 4) | (upper >> 4);
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    flags.SetC(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "SRL",
+                DataType.D8,
+                (flags, arg) =>
+                {
+                    int result = (arg >> 1);
+                    flags.SetC((arg & 1) != 0);
+                    flags.SetZ(result == 0);
+                    flags.SetN(false);
+                    flags.SetH(false);
+                    return result;
+                }
+            );
+            RegisterAluFunction(
+                "BIT",
+                DataType.D8,
+                DataType.D8,
+                (flags, arg1, arg2) =>
+                {
+                    int bit = arg2;
+                    flags.SetN(false);
+                    flags.SetH(true);
+                    if (bit < 8)
+                    {
+                        flags.SetZ(!BitUtils.GetBit(arg1, arg2));
+                    }
 
-                flags.setZ((res & 0xff) == 0);
-                flags.setN(true);
-                flags.setH(((byte1 ^ byte2 ^ (res & 0xff)) & (1 << 4)) != 0);
-                flags.setC(res < 0);
-                return res & 0xff;
-            });
-            registerAluFunction("AND", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                int result = byte1 & byte2;
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(true);
-                flags.setC(false);
-                return result;
-            });
-            registerAluFunction("OR", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                int result = byte1 | byte2;
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                flags.setC(false);
-                return result;
-            });
-            registerAluFunction("XOR", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                int result = (byte1 ^ byte2) & 0xff;
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                flags.setC(false);
-                return result;
-            });
-            registerAluFunction("CP", DataType.D8, DataType.D8, (flags, byte1, byte2) =>
-            {
-                flags.setZ(((byte1 - byte2) & 0xff) == 0);
-                flags.setN(true);
-                flags.setH((0x0f & byte2) > (0x0f & byte1));
-                flags.setC(byte2 > byte1);
-                return byte1;
-            });
-            registerAluFunction("RLC", DataType.D8, (flags, arg) =>
-            {
-                int result = (arg << 1) & 0xff;
-                if ((arg & (1 << 7)) != 0)
-                {
-                    result |= 1;
-                    flags.setC(true);
+                    return arg1;
                 }
-                else
-                {
-                    flags.setC(false);
-                }
-
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                return result;
-            });
-            registerAluFunction("RRC", DataType.D8, (flags, arg) =>
-            {
-                int result = arg >> 1;
-                if ((arg & 1) == 1)
-                {
-                    result |= (1 << 7);
-                    flags.setC(true);
-                }
-                else
-                {
-                    flags.setC(false);
-                }
-
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                return result;
-            });
-            registerAluFunction("RL", DataType.D8, (flags, arg) =>
-            {
-                int result = (arg << 1) & 0xff;
-                result |= flags.isC() ? 1 : 0;
-                flags.setC((arg & (1 << 7)) != 0);
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                return result;
-            });
-            registerAluFunction("RR", DataType.D8, (flags, arg) =>
-            {
-                int result = arg >> 1;
-                result |= flags.isC() ? (1 << 7) : 0;
-                flags.setC((arg & 1) != 0);
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                return result;
-            });
-            registerAluFunction("SLA", DataType.D8, (flags, arg) =>
-            {
-                int result = (arg << 1) & 0xff;
-                flags.setC((arg & (1 << 7)) != 0);
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                return result;
-            });
-            registerAluFunction("SRA", DataType.D8, (flags, arg) =>
-            {
-                int result = (arg >> 1) | (arg & (1 << 7));
-                flags.setC((arg & 1) != 0);
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                return result;
-            });
-            registerAluFunction("SWAP", DataType.D8, (flags, arg) =>
-            {
-                int upper = arg & 0xf0;
-                int lower = arg & 0x0f;
-                int result = (lower << 4) | (upper >> 4);
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                flags.setC(false);
-                return result;
-            });
-            registerAluFunction("SRL", DataType.D8, (flags, arg) =>
-            {
-                int result = (arg >> 1);
-                flags.setC((arg & 1) != 0);
-                flags.setZ(result == 0);
-                flags.setN(false);
-                flags.setH(false);
-                return result;
-            });
-            registerAluFunction("BIT", DataType.D8, DataType.D8, (flags, arg1, arg2) =>
-            {
-                int bit = arg2;
-                flags.setN(false);
-                flags.setH(true);
-                if (bit < 8)
-                {
-                    flags.setZ(!BitUtils.getBit(arg1, arg2));
-                }
-
-                return arg1;
-            });
-            registerAluFunction("RES", DataType.D8, DataType.D8, (flags, arg1, arg2) => BitUtils.clearBit(arg1, arg2));
-            registerAluFunction("SET", DataType.D8, DataType.D8, (flags, arg1, arg2) => BitUtils.setBit(arg1, arg2));
+            );
+            RegisterAluFunction(
+                "RES",
+                DataType.D8,
+                DataType.D8,
+                (flags, arg1, arg2) => BitUtils.ClearBit(arg1, arg2)
+            );
+            RegisterAluFunction(
+                "SET",
+                DataType.D8,
+                DataType.D8,
+                (flags, arg1, arg2) => BitUtils.SetBit(arg1, arg2)
+            );
         }
 
         private class FunctionKey
         {
-            private readonly string name;
+            public readonly string Name;
 
-            private readonly DataType type1;
+            public readonly DataType Type1;
 
-            private readonly DataType type2;
+            public readonly DataType Type2;
 
             public FunctionKey(string name, DataType type1, DataType type2)
             {
-                this.name = name;
-                this.type1 = type1;
-                this.type2 = type2;
+                this.Name = name;
+                this.Type1 = type1;
+                this.Type2 = type2;
             }
 
             public FunctionKey(string name, DataType type)
             {
-                this.name = name;
-                this.type1 = type;
-                this.type2 = DataType.UNDEFINED;
+                this.Name = name;
+                Type1 = type;
+                Type2 = DataType.Undefined;
             }
 
-            public bool Equals(Object o)
+            public override bool Equals(object? o)
             {
-                if (this == o) return true;
-                if (o == null || this.GetType() != o.GetType()) return false;
+                if (this == o)
+                    return true;
+                if (o == null || GetType() != o.GetType())
+                    return false;
 
                 FunctionKey that = (FunctionKey)o;
 
-                if (!name.Equals(that.name)) return false;
-                if (!type1.Equals(that.type1)) return false;
-                return type2 != null ? type2.Equals(that.type2) : that.type2 == null;
+                if (!Name.Equals(that.Name))
+                    return false;
+                if (!Type1.Equals(that.Type1))
+                    return false;
+                return Type2 != null ? Type2.Equals(that.Type2) : that.Type2 == null;
             }
 
-            public int GetHasCode()
+            public override int GetHashCode()
             {
-                int result = name.GetHashCode();
-                result = 31 * result + type1.GetHashCode();
-                result = 31 * result + (type2 != null ? type2.GetHashCode() : 0);
+                int result = Name.GetHashCode();
+                result = 31 * result + Type1.GetHashCode();
+                result = 31 * result + (Type2 != null ? Type2.GetHashCode() : 0);
                 return result;
             }
         }

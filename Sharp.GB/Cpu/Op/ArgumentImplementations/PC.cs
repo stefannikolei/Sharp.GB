@@ -2,20 +2,20 @@ using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Cpu.Op.ArgumentImplementations;
 
-public class PC : Argument
+public class Pc : Argument
 {
-    public PC()
+    public Pc()
         : base("PC", 0, false, DataType.D16)
     {
     }
 
-    public override int read(Registers registers, IAddressSpace addressSpace, int[] args)
+    public override int Read(Registers registers, IAddressSpace addressSpace, int[] args)
     {
-        return registers.getPC();
+        return registers.GetPc();
     }
 
-    public override void write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    public override void Write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
     {
-        registers.setPC(value);
+        registers.SetPc(value);
     }
 }

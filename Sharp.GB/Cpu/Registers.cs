@@ -4,185 +4,199 @@ namespace Sharp.GB.Cpu
 {
     public class Registers
     {
-        private int a, b, c, d, e, h, l;
+        private int _a,
+            _b,
+            _c,
+            _d,
+            _e,
+            _h,
+            _l;
 
-        private int sp;
+        private int _sp;
 
-        private int pc;
+        private int _pc;
 
-        private Flags flags = new Flags();
+        private Flags _flags = new Flags();
 
-        public int getA()
+        public int GetA()
         {
-            return a;
+            return _a;
         }
 
-        public int getB()
+        public int GetB()
         {
-            return b;
+            return _b;
         }
 
-        public int getC()
+        public int GetC()
         {
-            return c;
+            return _c;
         }
 
-        public int getD()
+        public int GetD()
         {
-            return d;
+            return _d;
         }
 
-        public int getE()
+        public int GetE()
         {
-            return e;
+            return _e;
         }
 
-        public int getH()
+        public int GetH()
         {
-            return h;
+            return _h;
         }
 
-        public int getL()
+        public int GetL()
         {
-            return l;
+            return _l;
         }
 
-        public int getAF()
+        public int GetAf()
         {
-            return a << 8 | flags.getFlagsByte();
+            return _a << 8 | _flags.GetFlagsByte();
         }
 
-        public int getBC()
+        public int GetBc()
         {
-            return b << 8 | c;
+            return _b << 8 | _c;
         }
 
-        public int getDE()
+        public int GetDe()
         {
-            return d << 8 | e;
+            return _d << 8 | _e;
         }
 
-        public int getHL()
+        public int GetHl()
         {
-            return h << 8 | l;
+            return _h << 8 | _l;
         }
 
-        public int getSP()
+        public int GetSp()
         {
-            return sp;
+            return _sp;
         }
 
-        public int getPC()
+        public int GetPc()
         {
-            return pc;
+            return _pc;
         }
 
-        public Flags getFlags()
+        public Flags GetFlags()
         {
-            return flags;
+            return _flags;
         }
 
-        public void setA(int a)
+        public void SetA(int a)
         {
             // checkByteArgument("a", a);
-            this.a = a;
+            this._a = a;
         }
 
-        public void setB(int b)
+        public void SetB(int b)
         {
             // checkByteArgument("b", b);
-            this.b = b;
+            this._b = b;
         }
 
-        public void setC(int c)
+        public void SetC(int c)
         {
             // checkByteArgument("c", c);
-            this.c = c;
+            this._c = c;
         }
 
-        public void setD(int d)
+        public void SetD(int d)
         {
             // checkByteArgument("d", d);
-            this.d = d;
+            this._d = d;
         }
 
-        public void setE(int e)
+        public void SetE(int e)
         {
             // checkByteArgument("e", e);
-            this.e = e;
+            this._e = e;
         }
 
-        public void setH(int h)
+        public void SetH(int h)
         {
             // checkByteArgument("h", h);
-            this.h = h;
+            this._h = h;
         }
 
-        public void setL(int l)
+        public void SetL(int l)
         {
             // checkByteArgument("l", l);
-            this.l = l;
+            this._l = l;
         }
 
-        public void setAF(int af)
+        public void SetAf(int af)
         {
             // checkWordArgument("af", af);
-            a = BitUtils.getMSB(af);
-            flags.setFlagsByte(BitUtils.getLSB(af));
+            _a = BitUtils.GetMsb(af);
+            _flags.SetFlagsByte(BitUtils.GetLsb(af));
         }
 
-        public void setBC(int bc)
+        public void SetBc(int bc)
         {
             // checkWordArgument("bc", bc);
-            b = BitUtils.getMSB(bc);
-            c = BitUtils.getLSB(bc);
+            _b = BitUtils.GetMsb(bc);
+            _c = BitUtils.GetLsb(bc);
         }
 
-        public void setDE(int de)
+        public void SetDe(int de)
         {
             // checkWordArgument("de", de);
-            d = BitUtils.getMSB(de);
-            e = BitUtils.getLSB(de);
+            _d = BitUtils.GetMsb(de);
+            _e = BitUtils.GetLsb(de);
         }
 
-        public void setHL(int hl)
+        public void SetHl(int hl)
         {
             // checkWordArgument("hl", hl);
-            h = BitUtils.getMSB(hl);
-            l = BitUtils.getLSB(hl);
+            _h = BitUtils.GetMsb(hl);
+            _l = BitUtils.GetLsb(hl);
         }
 
-        public void setSP(int sp)
+        public void SetSp(int sp)
         {
             // checkWordArgument("sp", sp);
-            this.sp = sp;
+            this._sp = sp;
         }
 
-        public void setPC(int pc)
+        public void SetPc(int pc)
         {
             // checkWordArgument("pc", pc);
-            this.pc = pc;
+            this._pc = pc;
         }
 
-        public void incrementPC()
+        public void IncrementPc()
         {
-            pc = (pc + 1) & 0xffff;
+            _pc = (_pc + 1) & 0xffff;
         }
 
-        public void decrementSP()
+        public void DecrementSp()
         {
-            sp = (sp - 1) & 0xffff;
+            _sp = (_sp - 1) & 0xffff;
         }
 
-        public void incrementSP()
+        public void IncrementSp()
         {
-            sp = (sp + 1) & 0xffff;
+            _sp = (_sp + 1) & 0xffff;
         }
 
-        public string ToString()
+        public override string ToString()
         {
-            return string.Format("AF=%04x, BC=%04x, DE=%04x, HL=%04x, SP=%04x, PC=%04x, %s", getAF(), getBC(), getDE(),
-                getHL(), getSP(), getPC(), getFlags().ToString());
+            return string.Format(
+                "AF=%04x, BC=%04x, DE=%04x, HL=%04x, SP=%04x, PC=%04x, %s",
+                GetAf(),
+                GetBc(),
+                GetDe(),
+                GetHl(),
+                GetSp(),
+                GetPc(),
+                GetFlags().ToString()
+            );
         }
     }
 }

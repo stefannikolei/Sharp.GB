@@ -6,6 +6,6 @@
         VBlank,
         OamSearch,
         PixelTransfer,
-        UNDEFINED
+        Undefined
     }
 }

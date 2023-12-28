@@ -4,7 +4,7 @@ namespace Sharp.GB.Cpu.Op.Ops;
 
 public class WordOp(int value) : IOp
 {
-    public int execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
+    public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
     {
         return value;
     }

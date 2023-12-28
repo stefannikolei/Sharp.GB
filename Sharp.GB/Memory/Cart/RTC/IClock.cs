@@ -18,7 +18,7 @@ namespace Sharp.GB.Memory.cart.RTC
         int GetMinutes();
         int GetHours();
         int GetDayCounter();
-        
+
         void SetSeconds(int seconds);
         void SetMinutes(int minutes);
         void SetHours(int hours);

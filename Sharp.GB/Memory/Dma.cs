@@ -5,70 +5,70 @@ namespace Sharp.GB.Memory
 {
     public class Dma : IAddressSpace
     {
-        private readonly IAddressSpace addressSpace;
+        private readonly IAddressSpace _addressSpace;
 
-        private readonly IAddressSpace oam;
+        private readonly IAddressSpace _oam;
 
-        private readonly SpeedMode speedMode;
+        private readonly SpeedMode _speedMode;
 
-        private bool transferInProgress;
+        private bool _transferInProgress;
 
-        private bool restarted;
+        private bool _restarted;
 
-        private int from;
+        private int _from;
 
-        private int ticks;
+        private int _ticks;
 
-        private int regValue = 0xff;
+        private int _regValue = 0xff;
 
         public Dma(IAddressSpace addressSpace, IAddressSpace oam, SpeedMode speedMode)
         {
-            this.addressSpace = new DmaAddressSpace(addressSpace);
-            this.speedMode = speedMode;
-            this.oam = oam;
+            this._addressSpace = new DmaAddressSpace(addressSpace);
+            this._speedMode = speedMode;
+            this._oam = oam;
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return address == 0xff46;
         }
 
         public void Tick()
         {
-            if (transferInProgress)
+            if (_transferInProgress)
             {
-                if (++ticks >= 648 / speedMode.GetSpeedMode())
+                if (++_ticks >= 648 / _speedMode.GetSpeedMode())
                 {
-                    transferInProgress = false;
-                    restarted = false;
-                    ticks = 0;
+                    _transferInProgress = false;
+                    _restarted = false;
+                    _ticks = 0;
                     for (int i = 0; i < 0xa0; i++)
                     {
-                        oam.setByte(0xfe00 + i, addressSpace.getByte(from + i));
+                        _oam.SetByte(0xfe00 + i, _addressSpace.GetByte(_from + i));
                     }
                 }
             }
         }
 
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
-            from = value * 0x100;
-            restarted = IsOamBlocked();
-            ticks = 0;
-            transferInProgress = true;
-            regValue = value;
+            _from = value * 0x100;
+            _restarted = IsOamBlocked();
+            _ticks = 0;
+            _transferInProgress = true;
+            _regValue = value;
         }
 
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
-            return regValue;
+            return _regValue;
         }
 
         public bool IsOamBlocked()
         {
-            return restarted || (transferInProgress && ticks >= 5);
+            return _restarted || (_transferInProgress && _ticks >= 5);
         }
     }
 }

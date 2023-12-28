@@ -2,21 +2,21 @@ namespace Sharp.GB.Cpu.Op.Ops;
 
 public class ProceedOp(string condition) : IOp
 {
-    public bool proceed(Registers registers)
+    public bool Proceed(Registers registers)
     {
         switch (condition)
         {
             case "NZ":
-                return !registers.getFlags().isZ();
+                return !registers.GetFlags().IsZ();
 
             case "Z":
-                return registers.getFlags().isZ();
+                return registers.GetFlags().IsZ();
 
             case "NC":
-                return !registers.getFlags().isC();
+                return !registers.GetFlags().IsC();
 
             case "C":
-                return registers.getFlags().isC();
+                return registers.GetFlags().IsC();
         }
 
         return false;

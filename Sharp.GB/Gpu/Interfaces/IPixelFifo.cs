@@ -2,16 +2,16 @@
 {
     public interface IPixelFifo
     {
-        int getLength();
+        int GetLength();
 
-        void putPixelToScreen();
+        void PutPixelToScreen();
 
-        void dropPixel();
+        void DropPixel();
 
-        void enqueue8Pixels(int[] pixels, TileAttributes tileAttributes);
+        void Enqueue8Pixels(int[] pixels, TileAttributes tileAttributes);
 
-        void setOverlay(int[] pixelLine, int offset, TileAttributes flags, int oamIndex);
+        void SetOverlay(int[] pixelLine, int offset, TileAttributes flags, int oamIndex);
 
-        void clear();
+        void Clear();
     }
 }

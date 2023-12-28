@@ -11,12 +11,12 @@ public class R8 : Argument
     {
     }
 
-    public override int read(Registers registers, IAddressSpace addressSpace, int[] args)
+    public override int Read(Registers registers, IAddressSpace addressSpace, int[] args)
     {
-        return BitUtils.toSigned(args[0]);
+        return BitUtils.ToSigned(args[0]);
     }
 
-    public override void write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    public override void Write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
     {
         throw new NotSupportedException();
     }

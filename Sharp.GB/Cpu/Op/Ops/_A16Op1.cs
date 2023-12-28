@@ -3,26 +3,26 @@ using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Cpu.Op.Ops;
 
-public class _A16Op1(Argument arg) : IOp
+public class A16Op1(Argument arg) : IOp
 {
-    public bool writesMemory()
+    public bool WritesMemory()
     {
-        return arg.isMemory();
+        return arg.IsMemory();
     }
 
-    public int operandLength()
+    public int OperandLength()
     {
-        return arg.getOperandLength();
+        return arg.GetOperandLength();
     }
 
-    public int execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
+    public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
     {
-        addressSpace.setByte(BitUtils.toWord(args), context & 0x00ff);
+        addressSpace.SetByte(BitUtils.ToWord(args), context & 0x00ff);
         return context;
     }
 
     public override string ToString()
     {
-        return string.Format("[ _] → %s", arg.getLabel());
+        return string.Format("[ _] → %s", arg.GetLabel());
     }
 }

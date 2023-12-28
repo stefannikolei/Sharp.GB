@@ -4,31 +4,31 @@ namespace Sharp.GB.Cpu
 {
     public class SpeedMode : IAddressSpace
     {
-        private bool currentSpeed;
+        private bool _currentSpeed;
 
-        private bool prepareSpeedSwitch;
+        private bool _prepareSpeedSwitch;
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return address == 0xff4d;
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
-            prepareSpeedSwitch = (value & 0x01) != 0;
+            _prepareSpeedSwitch = (value & 0x01) != 0;
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
-            return (currentSpeed ? (1 << 7) : 0) | (prepareSpeedSwitch ? (1 << 0) : 0) | 0b01111110;
+            return (_currentSpeed ? (1 << 7) : 0) | (_prepareSpeedSwitch ? (1 << 0) : 0) | 0b01111110;
         }
 
-        bool OnStop()
+        public bool OnStop()
         {
-            if (prepareSpeedSwitch)
+            if (_prepareSpeedSwitch)
             {
-                currentSpeed = !currentSpeed;
-                prepareSpeedSwitch = false;
+                _currentSpeed = !_currentSpeed;
+                _prepareSpeedSwitch = false;
                 return true;
             }
             else
@@ -39,7 +39,7 @@ namespace Sharp.GB.Cpu
 
         public int GetSpeedMode()
         {
-            return currentSpeed ? 2 : 1;
+            return _currentSpeed ? 2 : 1;
         }
     }
 }

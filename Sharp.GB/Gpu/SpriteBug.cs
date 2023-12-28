@@ -7,21 +7,21 @@ namespace Sharp.GB.Gpu
     {
         public enum CorruptionType
         {
-            INC_DEC,
-            POP_1,
-            POP_2,
-            PUSH_1,
-            PUSH_2,
-            LD_HL
+            IncDec,
+            Pop1,
+            Pop2,
+            Push1,
+            Push2,
+            LdHl
         }
 
-        public static void CorruptOam(IAddressSpace addressSpace, CorruptionType type, int ticksInLine)
+        public static void CorruptOam(IAddressSpace addressSpace, CorruptionType? type, int ticksInLine)
         {
             int cpuCycle = (ticksInLine + 1) / 4 + 1;
 
             switch (type)
             {
-                case CorruptionType.INC_DEC:
+                case CorruptionType.IncDec:
                     if (cpuCycle >= 2)
                     {
                         CopyValues(addressSpace, (cpuCycle - 2) * 8 + 2, (cpuCycle - 1) * 8 + 2, 6);
@@ -29,7 +29,7 @@ namespace Sharp.GB.Gpu
 
                     break;
 
-                case CorruptionType.POP_1:
+                case CorruptionType.Pop1:
                     if (cpuCycle >= 4)
                     {
                         CopyValues(addressSpace, (cpuCycle - 3) * 8 + 2, (cpuCycle - 4) * 8 + 2, 8);
@@ -39,7 +39,7 @@ namespace Sharp.GB.Gpu
 
                     break;
 
-                case CorruptionType.POP_2:
+                case CorruptionType.Pop2:
                     if (cpuCycle >= 5)
                     {
                         CopyValues(addressSpace, (cpuCycle - 5) * 8 + 0, (cpuCycle - 2) * 8 + 0, 8);
@@ -47,7 +47,7 @@ namespace Sharp.GB.Gpu
 
                     break;
 
-                case CorruptionType.PUSH_1:
+                case CorruptionType.Push1:
                     if (cpuCycle >= 4)
                     {
                         CopyValues(addressSpace, (cpuCycle - 4) * 8 + 2, (cpuCycle - 3) * 8 + 2, 8);
@@ -56,7 +56,7 @@ namespace Sharp.GB.Gpu
 
                     break;
 
-                case CorruptionType.PUSH_2:
+                case CorruptionType.Push2:
                     if (cpuCycle >= 5)
                     {
                         CopyValues(addressSpace, (cpuCycle - 4) * 8 + 2, (cpuCycle - 3) * 8 + 2, 8);
@@ -64,7 +64,7 @@ namespace Sharp.GB.Gpu
 
                     break;
 
-                case CorruptionType.LD_HL:
+                case CorruptionType.LdHl:
                     if (cpuCycle >= 4)
                     {
                         CopyValues(addressSpace, (cpuCycle - 3) * 8 + 2, (cpuCycle - 4) * 8 + 2, 8);
@@ -82,8 +82,8 @@ namespace Sharp.GB.Gpu
         {
             for (int i = length - 1; i >= 0; i--)
             {
-                int b = addressSpace.getByte(0xfe00 + from + i) % 0xff;
-                addressSpace.setByte(0xfe00 + to + i, b);
+                int b = addressSpace.GetByte(0xfe00 + from + i) % 0xff;
+                addressSpace.SetByte(0xfe00 + to + i, b);
             }
         }
     }

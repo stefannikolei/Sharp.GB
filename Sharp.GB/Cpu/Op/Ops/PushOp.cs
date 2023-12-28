@@ -6,22 +6,22 @@ namespace Sharp.GB.Cpu.Op.Ops;
 
 public class PushOp(Func<Flags, int, int> dec) : IOp
 {
-    public bool writesMemory()
+    public bool WritesMemory()
     {
         return true;
     }
 
 
-    public int execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
+    public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
     {
-        registers.setSP(dec.Invoke(registers.getFlags(), registers.getSP()));
-        addressSpace.setByte(registers.getSP(), (context & 0xff00) >> 8);
+        registers.SetSp(dec.Invoke(registers.GetFlags(), registers.GetSp()));
+        addressSpace.SetByte(registers.GetSp(), (context & 0xff00) >> 8);
         return context;
     }
 
-    public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
+    public SpriteBug.CorruptionType? CausesOemBug(Registers registers, int context)
     {
-        return IOp.inOamArea(registers.getSP()) ? SpriteBug.CorruptionType.PUSH_1 : default;
+        return IOp.InOamArea(registers.GetSp()) ? SpriteBug.CorruptionType.Push1 : null;
     }
 
     public override string ToString()

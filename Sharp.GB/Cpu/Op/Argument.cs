@@ -6,59 +6,82 @@ using Sharp.GB.Memory.Interface;
 
 public abstract class Argument
 {
-    private string label;
+    private string _label;
 
-    private int operandLength;
+    private int _operandLength;
 
-    private bool memory;
+    private bool _memory;
 
-    private DataType dataType;
+    private DataType _dataType;
 
-    protected Argument(string name) :
-        this(name, 0, false, DataType.D8)
-    {
-    }
+    protected Argument(string name)
+        : this(name, 0, false, DataType.D8) { }
 
     protected Argument(string label, int operandLength, bool memory, DataType dataType)
     {
         // TODO: "" must be replaced with the Implementationname
-        this.label = label == null ? "" : label;
-        this.operandLength = operandLength;
-        this.memory = memory;
-        this.dataType = dataType;
+        this._label = label == null ? "" : label;
+        this._operandLength = operandLength;
+        this._memory = memory;
+        this._dataType = dataType;
     }
 
-    public int getOperandLength()
+    public int GetOperandLength()
     {
-        return operandLength;
+        return _operandLength;
     }
 
-    public bool isMemory()
+    public bool IsMemory()
     {
-        return memory;
+        return _memory;
     }
 
-    public abstract int read(Registers registers, IAddressSpace addressSpace, int[] args);
+    public abstract int Read(Registers registers, IAddressSpace addressSpace, int[] args);
 
-    public abstract void write(Registers registers, IAddressSpace addressSpace, int[] args, int value);
+    public abstract void Write(
+        Registers registers,
+        IAddressSpace addressSpace,
+        int[] args,
+        int value
+    );
 
-    public DataType getDataType()
+    public DataType GetDataType()
     {
-        return dataType;
+        return _dataType;
     }
 
-    private static List<Argument> Values =
+    private static List<Argument> s_values =
     [
-        new _A8(), new _A16(), new _BC(), new _C(), new _DE(), new _HL(), new A(), new A16(), new AF(), new B(),
-        new BC(), new C(), new D(), new D8(), new D16(), new DE(), new E(), new H(), new HL(), new L(), new PC(),
-        new R8(), new SP()
+        new A82(),
+        new A162(),
+        new Bc2(),
+        new C2(),
+        new De2(),
+        new Hl2(),
+        new A(),
+        new A16(),
+        new Af(),
+        new B(),
+        new Bc(),
+        new C(),
+        new D(),
+        new D8(),
+        new D16(),
+        new De(),
+        new E(),
+        new H(),
+        new Hl(),
+        new L(),
+        new Pc(),
+        new R8(),
+        new Sp()
     ];
 
-    public static Argument parse(string value)
+    public static Argument Parse(string value)
     {
-        foreach (Argument a in Values)
+        foreach (Argument a in s_values)
         {
-            if (a.label.Equals(value))
+            if (a._label.Equals(value))
             {
                 return a;
             }
@@ -67,8 +90,8 @@ public abstract class Argument
         throw new ArgumentException("Unknown argument: " + value);
     }
 
-    public String getLabel()
+    public string GetLabel()
     {
-        return label;
+        return _label;
     }
 }

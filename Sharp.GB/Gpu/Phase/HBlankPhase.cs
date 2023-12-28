@@ -2,18 +2,18 @@
 {
     public class HBlankPhase : IGpuPhase
     {
-        private int ticks;
+        private int _ticks;
 
-        public HBlankPhase start(int ticksInLine)
+        public HBlankPhase Start(int ticksInLine)
         {
-            this.ticks = ticksInLine;
+            _ticks = ticksInLine;
             return this;
         }
 
-        public bool tick()
+        public bool Tick()
         {
-            ticks++;
-            return ticks < 456;
+            _ticks++;
+            return _ticks < 456;
         }
     }
 }

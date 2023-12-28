@@ -12,7 +12,7 @@ namespace Sharp.GB.Memory.cart.Type
         private CartridgeType _type;
         private IBattery _battery;
 
-        private int selectedRomBank = 1;
+        private int _selectedRomBank = 1;
 
         private bool _ramWriteEnabled;
 
@@ -32,13 +32,13 @@ namespace Sharp.GB.Memory.cart.Type
             _battery.LoadRam(_ram);
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return address >= 0x0000 && address < 0x8000 ||
                    address >= 0xa000 && address < 0xc000;
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             if (address >= 0x0000 && address < 0x2000)
             {
@@ -55,7 +55,7 @@ namespace Sharp.GB.Memory.cart.Type
             {
                 if ((address & 0x0100) != 0)
                 {
-                    selectedRomBank = value & 0b00001111;
+                    _selectedRomBank = value & 0b00001111;
                 }
             }
             else if (address >= 0xa000 && address < 0xc000 && _ramWriteEnabled)
@@ -73,7 +73,7 @@ namespace Sharp.GB.Memory.cart.Type
             return address - 0xa000;
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             if (address >= 0x0000 && address < 0x4000)
             {
@@ -81,7 +81,7 @@ namespace Sharp.GB.Memory.cart.Type
             }
             else if (address >= 0x4000 && address < 0x8000)
             {
-                return GetRomByte(selectedRomBank, address - 0x4000);
+                return GetRomByte(_selectedRomBank, address - 0x4000);
             }
             else if (address >= 0xa000 && address < 0xb000)
             {

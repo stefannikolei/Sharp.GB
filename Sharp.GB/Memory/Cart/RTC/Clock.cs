@@ -8,18 +8,18 @@ namespace Sharp.GB.Memory.cart.RTC
 {
     public class Clock : IClock
     {
-        private long offsetSec;
-        private long clockStart;
-        private long latchStart;
+        private long _offsetSec;
+        private long _clockStart;
+        private long _latchStart;
         private bool _halt;
-        private int haltSeconds;
-        private int haltMinutes;
-        private int haltHours;
-        private int haltDays;
+        private int _haltSeconds;
+        private int _haltMinutes;
+        private int _haltHours;
+        private int _haltDays;
 
         public Clock()
         {
-            clockStart = Environment.TickCount64;
+            _clockStart = Environment.TickCount64;
         }
 
         public void Deserialize(long[] clockData)
@@ -31,8 +31,8 @@ namespace Sharp.GB.Memory.cart.RTC
             long daysHigh = clockData[4];
             long timestamp = clockData[10];
 
-            this.clockStart = timestamp * 1000;
-            this.offsetSec = seconds + minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60 +
+            _clockStart = timestamp * 1000;
+            _offsetSec = seconds + minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60 +
                              daysHigh * 256 * 24 * 60 * 60;
         }
 
@@ -45,46 +45,46 @@ namespace Sharp.GB.Memory.cart.RTC
             clockData[2] = clockData[7] = GetHours();
             clockData[3] = clockData[8] = GetDayCounter() % 256;
             clockData[4] = clockData[9] = GetDayCounter() / 256;
-            clockData[10] = latchStart / 1000;
+            clockData[10] = _latchStart / 1000;
             Unlatch();
             return clockData;
         }
 
         public void Unlatch()
         {
-            latchStart = 0;
+            _latchStart = 0;
         }
 
         public void Latch()
         {
-            latchStart = Environment.TickCount64;
+            _latchStart = Environment.TickCount64;
         }
 
         public void SetHalt(bool halt)
         {
-            if (halt && !this._halt)
+            if (halt && !_halt)
             {
                 Latch();
-                haltSeconds = GetSeconds();
-                haltMinutes = GetMinutes();
-                haltHours = GetHours();
-                haltDays = GetDayCounter();
+                _haltSeconds = GetSeconds();
+                _haltMinutes = GetMinutes();
+                _haltHours = GetHours();
+                _haltDays = GetDayCounter();
                 Unlatch();
             }
-            else if (!halt && this._halt)
+            else if (!halt && _halt)
             {
-                offsetSec = haltSeconds + haltMinutes * 60 + haltHours * 60 * 60 + haltDays * 60 * 60 * 24;
-                clockStart = Environment.TickCount64;
+                _offsetSec = _haltSeconds + _haltMinutes * 60 + _haltHours * 60 * 60 + _haltDays * 60 * 60 * 24;
+                _clockStart = Environment.TickCount64;
             }
 
-            this._halt = halt;
+            _halt = halt;
         }
 
         public void ClearCounterOverflow()
         {
             while (IsCounterOverflow())
             {
-                offsetSec -= 60 * 60 * 24 * 512;
+                _offsetSec -= 60 * 60 * 24 * 512;
             }
         }
 
@@ -125,7 +125,7 @@ namespace Sharp.GB.Memory.cart.RTC
                 return;
             }
 
-            haltSeconds = seconds;
+            _haltSeconds = seconds;
         }
 
         public void SetMinutes(int minutes)
@@ -135,7 +135,7 @@ namespace Sharp.GB.Memory.cart.RTC
                 return;
             }
 
-            haltMinutes = minutes;
+            _haltMinutes = minutes;
         }
 
         public void SetHours(int hours)
@@ -145,7 +145,7 @@ namespace Sharp.GB.Memory.cart.RTC
                 return;
             }
 
-            haltHours = hours;
+            _haltHours = hours;
         }
 
         public void SetDayCounter(int dayCounter)
@@ -155,22 +155,22 @@ namespace Sharp.GB.Memory.cart.RTC
                 return;
             }
 
-            haltDays = dayCounter;
+            _haltDays = dayCounter;
         }
 
         private long ClockTimeInSec()
         {
             long now;
-            if (latchStart == 0)
+            if (_latchStart == 0)
             {
                 now = Environment.TickCount64;
             }
             else
             {
-                now = latchStart;
+                now = _latchStart;
             }
 
-            return (now - clockStart) / 1000 + offsetSec;
+            return (now - _clockStart) / 1000 + _offsetSec;
         }
     }
 }

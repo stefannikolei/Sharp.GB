@@ -8,11 +8,11 @@ namespace Sharp.GB.Memory.cart.Type
     public class Mbc1 : IAddressSpace
     {
         private static readonly int[] s_nintendoLogo =
-        {
+        [
             0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D, 0x00,
             0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99, 0xBB, 0xBB,
             0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E
-        };
+        ];
 
         private readonly bool _multiCart;
         private readonly IReadOnlyList<int> _cartRidge;
@@ -20,14 +20,14 @@ namespace Sharp.GB.Memory.cart.Type
         private readonly int _ramBanks;
         private readonly int[] _ram;
         private readonly CartridgeType _cartRidgeType;
-        private readonly IBattery _battery;
+        private readonly IBattery? _battery;
 
         private bool _ramWriteEnabled;
         private int _memoryModel;
         private int _selectedRamBank;
         private int _selectedRomBank = 1;
-        private int _cachedRomBankFor0x0000 = -1;
-        private int _cachedRomBankFor0x4000 = -1;
+        private int _cachedRomBankFor0X0000 = -1;
+        private int _cachedRomBankFor0X4000 = -1;
 
         public Mbc1(IReadOnlyList<int> cartridge, CartridgeType type, IBattery battery, int romBanks, int ramBanks)
         {
@@ -47,13 +47,13 @@ namespace Sharp.GB.Memory.cart.Type
             _battery?.LoadRam(_ram);
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return address >= 0x0000 && address < 0x8000 ||
                    address >= 0xa000 && address < 0xc000;
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             if (address > 0x0000 && address < 0x2000)
             {
@@ -68,25 +68,25 @@ namespace Sharp.GB.Memory.cart.Type
                 var bank = _selectedRomBank & 0b01100000;
                 _selectedRomBank = bank | (value & 0b00011111);
 
-                _cachedRomBankFor0x0000 = _cachedRomBankFor0x4000 = -1;
+                _cachedRomBankFor0X0000 = _cachedRomBankFor0X4000 = -1;
             }
             else if (address >= 0x4000 && address < 0x6000 && _memoryModel == 0)
             {
                 var bank = _selectedRomBank & 0b00011111;
                 _selectedRomBank = bank | ((value & 0b11) << 5);
 
-                _cachedRomBankFor0x0000 = _cachedRomBankFor0x4000 = -1;
+                _cachedRomBankFor0X0000 = _cachedRomBankFor0X4000 = -1;
             }
             else if (address >= 0x4000 && address < 0x6000 && _memoryModel == 1)
             {
                 _selectedRamBank = value & 0b11;
 
-                _cachedRomBankFor0x0000 = _cachedRomBankFor0x4000 = -1;
+                _cachedRomBankFor0X0000 = _cachedRomBankFor0X4000 = -1;
             }
             else if (address >= 0x6000 && address < 0x8000)
             {
                 _memoryModel = value & 1;
-                _cachedRomBankFor0x0000 = _cachedRomBankFor0x4000 = -1;
+                _cachedRomBankFor0X0000 = _cachedRomBankFor0X4000 = -1;
             }
             else if (address >= 0xa000 && address < 0xc000 && _ramWriteEnabled)
             {
@@ -98,15 +98,15 @@ namespace Sharp.GB.Memory.cart.Type
             }
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             if (address >= 0x0000 && address < 0x4000)
             {
-                return GetRomByte(GetRomBankFor0x0000(), address);
+                return GetRomByte(GetRomBankFor0X0000(), address);
             }
             else if (address >= 0x4000 && address < 0x8000)
             {
-                return GetRomByte(GetRomBankFor0x4000(), address - 0x4000);
+                return GetRomByte(GetRomBankFor0X4000(), address - 0x4000);
             }
             else if (address >= 0xa000 && address < 0xc000)
             {
@@ -134,13 +134,13 @@ namespace Sharp.GB.Memory.cart.Type
             }
         }
 
-        private int GetRomBankFor0x0000()
+        private int GetRomBankFor0X0000()
         {
-            if (_cachedRomBankFor0x0000 == -1)
+            if (_cachedRomBankFor0X0000 == -1)
             {
                 if (_memoryModel == 0)
                 {
-                    _cachedRomBankFor0x0000 = 0;
+                    _cachedRomBankFor0X0000 = 0;
                 }
                 else
                 {
@@ -151,16 +151,16 @@ namespace Sharp.GB.Memory.cart.Type
                     }
 
                     bank %= _romBanks;
-                    _cachedRomBankFor0x0000 = bank;
+                    _cachedRomBankFor0X0000 = bank;
                 }
             }
 
-            return _cachedRomBankFor0x0000;
+            return _cachedRomBankFor0X0000;
         }
 
-        private int GetRomBankFor0x4000()
+        private int GetRomBankFor0X4000()
         {
-            if (_cachedRomBankFor0x4000 == -1)
+            if (_cachedRomBankFor0X4000 == -1)
             {
                 int bank = _selectedRomBank;
                 if (bank % 0x20 == 0)
@@ -180,10 +180,10 @@ namespace Sharp.GB.Memory.cart.Type
                 }
 
                 bank %= _romBanks;
-                _cachedRomBankFor0x4000 = bank;
+                _cachedRomBankFor0X4000 = bank;
             }
 
-            return _cachedRomBankFor0x4000;
+            return _cachedRomBankFor0X4000;
         }
 
         private int GetRomByte(int bank, int address)

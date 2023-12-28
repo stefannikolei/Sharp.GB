@@ -2,20 +2,20 @@ using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Cpu.Op.ArgumentImplementations;
 
-public class _DE : Argument
+public class De2 : Argument
 {
-    public _DE()
+    public De2()
         : base("(DE)", 0, true, DataType.D8)
     {
     }
 
-    public override int read(Registers registers, IAddressSpace addressSpace, int[] args)
+    public override int Read(Registers registers, IAddressSpace addressSpace, int[] args)
     {
-        return addressSpace.getByte(registers.getDE());
+        return addressSpace.GetByte(registers.GetDe());
     }
 
-    public override void write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
+    public override void Write(Registers registers, IAddressSpace addressSpace, int[] args, int value)
     {
-        addressSpace.setByte(registers.getDE(), value);
+        addressSpace.SetByte(registers.GetDe(), value);
     }
 }

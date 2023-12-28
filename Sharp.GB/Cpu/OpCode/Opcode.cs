@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Sharp.GB.Cpu.Op;
 
@@ -7,45 +6,45 @@ namespace Sharp.GB.Cpu.OpCode
 {
     public class Opcode
     {
-        private readonly int opcode;
+        private readonly int _opcode;
 
-        private readonly string label;
+        private readonly string _label;
 
-        private readonly List<IOp> ops;
+        private readonly List<IOp> _ops;
 
-        private readonly int length;
+        private readonly int _length;
 
         public Opcode(OpcodeBuilder builder)
         {
-            this.opcode = builder.GetOpcode();
-            this.label = builder.GetLabel();
-            this.ops = builder.GetOps();
-            this.length = ops.Count == 0 ? ops.MaxBy(x => x.OperandLength()).OperandLength(): 0;
+            _opcode = builder.GetOpcode();
+            _label = builder.GetLabel();
+            _ops = builder.GetOps();
+            _length = _ops.Count != 0 ? _ops.MaxBy(x => x.OperandLength())!.OperandLength() : 0;
         }
 
-        public int getOperandLength()
+        public int GetOperandLength()
         {
-            return length;
+            return _length;
         }
 
         public override string ToString()
         {
-            return string.Format("%02x %s", opcode, label);
+            return $"{_opcode:x2} {_label}";
         }
 
         public List<IOp> GetOps()
         {
-            return ops;
+            return _ops;
         }
 
-        public String GetLabel()
+        public string GetLabel()
         {
-            return label;
+            return _label;
         }
 
         public int GetOpcode()
         {
-            return opcode;
+            return _opcode;
         }
     }
 }

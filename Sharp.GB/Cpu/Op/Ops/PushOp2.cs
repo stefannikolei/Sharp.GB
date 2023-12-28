@@ -6,23 +6,23 @@ namespace Sharp.GB.Cpu.Op.Ops;
 
 public class PushOp2(Func<Flags, int, int> dec) : IOp
 {
-    public bool writesMemory()
+    public bool WritesMemory()
     {
         return true;
     }
 
 
-    public int execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
+    public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
     {
-        registers.setSP(dec.Invoke(registers.getFlags(), registers.getSP()));
-        addressSpace.setByte(registers.getSP(), context & 0x00ff);
+        registers.SetSp(dec.Invoke(registers.GetFlags(), registers.GetSp()));
+        addressSpace.SetByte(registers.GetSp(), context & 0x00ff);
         return context;
     }
 
 
-    public SpriteBug.CorruptionType causesOemBug(Registers registers, int context)
+    public SpriteBug.CorruptionType? CausesOemBug(Registers registers, int context)
     {
-        return IOp.inOamArea(registers.getSP()) ? SpriteBug.CorruptionType.PUSH_2 : default;
+        return IOp.InOamArea(registers.GetSp()) ? SpriteBug.CorruptionType.Push2 : null;
     }
 
 

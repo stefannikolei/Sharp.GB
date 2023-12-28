@@ -6,32 +6,32 @@ namespace Sharp.GB.Memory
 {
     public class Hdma : IAddressSpace
     {
-        private static readonly int HDMA1 = 0xff51;
-        private static readonly int HDMA2 = 0xff52;
-        private static readonly int HDMA3 = 0xff53;
-        private static readonly int HDMA4 = 0xff54;
-        private static readonly int HDMA5 = 0xff55;
-        
-        private readonly IAddressSpace addressSpace;
-        private readonly Ram hdma1234 = new Ram(HDMA1, 4);
-        
-        private Gpu.Mode gpuMode;
-        private bool transferInProgress;
-        private bool hblankTransfer;
-        private bool lcdEnabled;
-        private int length;
-        private int src;
-        private int dst;
-        private int tick;
+        private static readonly int s_hdma1 = 0xff51;
+        private static readonly int s_hdma2 = 0xff52;
+        private static readonly int s_hdma3 = 0xff53;
+        private static readonly int s_hdma4 = 0xff54;
+        private static readonly int s_hdma5 = 0xff55;
+
+        private readonly IAddressSpace _addressSpace;
+        private readonly Ram _hdma1234 = new Ram(s_hdma1, 4);
+
+        private Mode _gpuMode;
+        private bool _transferInProgress;
+        private bool _hblankTransfer;
+        private bool _lcdEnabled;
+        private int _length;
+        private int _src;
+        private int _dst;
+        private int _tick;
 
         public Hdma(IAddressSpace addressSpace)
         {
-            this.addressSpace = addressSpace;
+            this._addressSpace = addressSpace;
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
-            return address >= HDMA1 && address <= HDMA5;
+            return address >= s_hdma1 && address <= s_hdma5;
         }
 
         public void Tick()
@@ -41,38 +41,38 @@ namespace Sharp.GB.Memory
                 return;
             }
 
-            if (++tick < 0x20)
+            if (++_tick < 0x20)
             {
                 return;
             }
 
             for (int j = 0; j < 0x10; j++)
             {
-                addressSpace.setByte(dst + j, addressSpace.getByte(src + j));
+                _addressSpace.SetByte(_dst + j, _addressSpace.GetByte(_src + j));
             }
 
-            src += 0x10;
-            dst += 0x10;
-            if (length-- == 0)
+            _src += 0x10;
+            _dst += 0x10;
+            if (_length-- == 0)
             {
-                transferInProgress = false;
-                length = 0x7f;
+                _transferInProgress = false;
+                _length = 0x7f;
             }
-            else if (hblankTransfer)
+            else if (_hblankTransfer)
             {
-                gpuMode = Mode.UNDEFINED; // wait until next HBlank
+                _gpuMode = Mode.Undefined; // wait until next HBlank
             }
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
-            if (hdma1234.accepts(address))
+            if (_hdma1234.Accepts(address))
             {
-                hdma1234.setByte(address, value);
+                _hdma1234.SetByte(address, value);
             }
-            else if (address == HDMA5)
+            else if (address == s_hdma5)
             {
-                if (transferInProgress && (address & (1 << 7)) == 0)
+                if (_transferInProgress && (address & (1 << 7)) == 0)
                 {
                     StopTransfer();
                 }
@@ -83,15 +83,15 @@ namespace Sharp.GB.Memory
             }
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
-            if (hdma1234.accepts(address))
+            if (_hdma1234.Accepts(address))
             {
                 return 0xff;
             }
-            else if (address == HDMA5)
+            else if (address == s_hdma5)
             {
-                return (transferInProgress ? 0 : (1 << 7)) | length;
+                return (_transferInProgress ? 0 : (1 << 7)) | _length;
             }
             else
             {
@@ -99,27 +99,27 @@ namespace Sharp.GB.Memory
             }
         }
 
-        public void OnGpuUpdate(Gpu.Mode newGpuMode)
+        public void OnGpuUpdate(Mode newGpuMode)
         {
-            this.gpuMode = newGpuMode;
+            _gpuMode = newGpuMode;
         }
 
         public void OnLcdSwitch(bool lcdEnabled)
         {
-            this.lcdEnabled = lcdEnabled;
+            this._lcdEnabled = lcdEnabled;
         }
 
         public bool IsTransferInProgress()
         {
-            if (!transferInProgress)
+            if (!_transferInProgress)
             {
                 return false;
             }
-            else if (hblankTransfer && (gpuMode == Gpu.Mode.HBlank || !lcdEnabled))
+            else if (_hblankTransfer && (_gpuMode == Mode.HBlank || !_lcdEnabled))
             {
                 return true;
             }
-            else if (!hblankTransfer)
+            else if (!_hblankTransfer)
             {
                 return true;
             }
@@ -131,20 +131,20 @@ namespace Sharp.GB.Memory
 
         private void StartTransfer(int reg)
         {
-            hblankTransfer = (reg & (1 << 7)) != 0;
-            length = reg & 0x7f;
+            _hblankTransfer = (reg & (1 << 7)) != 0;
+            _length = reg & 0x7f;
 
-            src = (hdma1234.getByte(HDMA1) << 8) | (hdma1234.getByte(HDMA2) & 0xf0);
-            dst = ((hdma1234.getByte(HDMA3) & 0x1f) << 8) | (hdma1234.getByte(HDMA4) & 0xf0);
-            src = src & 0xfff0;
-            dst = (dst & 0x1fff) | 0x8000;
+            _src = (_hdma1234.GetByte(s_hdma1) << 8) | (_hdma1234.GetByte(s_hdma2) & 0xf0);
+            _dst = ((_hdma1234.GetByte(s_hdma3) & 0x1f) << 8) | (_hdma1234.GetByte(s_hdma4) & 0xf0);
+            _src = _src & 0xfff0;
+            _dst = (_dst & 0x1fff) | 0x8000;
 
-            transferInProgress = true;
+            _transferInProgress = true;
         }
 
         private void StopTransfer()
         {
-            transferInProgress = false;
+            _transferInProgress = false;
         }
     }
 }

@@ -1,17 +1,36 @@
-﻿namespace Sharp.GB.Gpu
+﻿using Sharp.GB.Gpu;
+
+namespace Sharp.GB.Gpu
 {
     public interface IDisplay
     {
-        void putDmgPixel(int color);
+        void PutDmgPixel(int color);
 
-        void putColorPixel(int gbcRgb);
+        void PutColorPixel(int gbcRgb);
 
-        void requestRefresh();
+        void RequestRefresh();
 
-        void waitForRefresh();
+        void WaitForRefresh();
 
-        void enableLcd();
+        void EnableLcd();
 
-        void disableLcd();
+        void DisableLcd();
     }
+}
+
+public class NullDisplay : IDisplay
+{
+    public static IDisplay Instance => new NullDisplay();
+
+    public void PutDmgPixel(int color) { }
+
+    public void PutColorPixel(int gbcRgb) { }
+
+    public void RequestRefresh() { }
+
+    public void WaitForRefresh() { }
+
+    public void EnableLcd() { }
+
+    public void DisableLcd() { }
 }

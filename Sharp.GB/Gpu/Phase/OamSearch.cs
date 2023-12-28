@@ -7,114 +7,124 @@ namespace Sharp.GB.Gpu.Phase
     {
         private enum State
         {
-            READING_Y, READING_X
+            ReadingY,
+            ReadingX
         }
 
         public class SpritePosition
         {
-            private readonly int x;
+            private readonly int _x;
 
-            private readonly int y;
+            private readonly int _y;
 
-            private readonly int address;
+            private readonly int _address;
 
             public SpritePosition(int x, int y, int address)
             {
-                this.x = x;
-                this.y = y;
-                this.address = address;
+                this._x = x;
+                this._y = y;
+                this._address = address;
             }
 
-            public int getX()
+            public int GetX()
             {
-                return x;
+                return _x;
             }
 
-            public int getY()
+            public int GetY()
             {
-                return y;
+                return _y;
             }
 
-            public int getAddress()
+            public int GetAddress()
             {
-                return address;
+                return _address;
             }
         }
 
+        private readonly IAddressSpace _oemRam;
 
-        private readonly IAddressSpace oemRam;
+        private readonly MemoryRegisters _registers;
 
-        private readonly MemoryRegisters registers;
+        private readonly SpritePosition?[] _sprites;
 
-        private readonly SpritePosition[] sprites;
+        private readonly Lcdc _lcdc;
 
-        private readonly Lcdc lcdc;
+        private int _spritePosIndex;
 
-        private int spritePosIndex;
+        private State _state;
 
-        private State state;
+        private int _spriteY;
 
-        private int spriteY;
+        private int _spriteX;
 
-        private int spriteX;
-
-        private int i;
+        private int _i;
 
         public OamSearch(IAddressSpace oemRam, Lcdc lcdc, MemoryRegisters registers)
         {
-            this.oemRam = oemRam;
-            this.registers = registers;
-            this.lcdc = lcdc;
-            this.sprites = new SpritePosition[10];
+            this._oemRam = oemRam;
+            this._registers = registers;
+            this._lcdc = lcdc;
+            _sprites = new SpritePosition[10];
         }
 
-        public OamSearch start()
+        public OamSearch Start()
         {
-            spritePosIndex = 0;
-            state = State.READING_Y;
-            spriteY = 0;
-            spriteX = 0;
-            i = 0;
-            for (int j = 0; j < sprites.Length; j++)
+            _spritePosIndex = 0;
+            _state = State.ReadingY;
+            _spriteY = 0;
+            _spriteX = 0;
+            _i = 0;
+            for (int j = 0; j < _sprites.Length; j++)
             {
-                sprites[j] = null;
+                _sprites[j] = null;
             }
 
             return this;
         }
 
-        public bool tick()
+        public bool Tick()
         {
-            int spriteAddress = 0xfe00 + 4 * i;
-            switch (state)
+            int spriteAddress = 0xfe00 + 4 * _i;
+            switch (_state)
             {
-                case State.READING_Y:
-                    spriteY = oemRam.getByte(spriteAddress);
-                    state = State.READING_X;
+                case State.ReadingY:
+                    _spriteY = _oemRam.GetByte(spriteAddress);
+                    _state = State.ReadingX;
                     break;
 
-                case State.READING_X:
-                    spriteX = oemRam.getByte(spriteAddress + 1);
-                    if (spritePosIndex < sprites.Length && between(spriteY, registers[GpuRegister.LY()] + 16,
-                        spriteY + lcdc.getSpriteHeight()))
+                case State.ReadingX:
+                    _spriteX = _oemRam.GetByte(spriteAddress + 1);
+                    if (
+                        _spritePosIndex < _sprites.Length
+                        && Between(
+                            _spriteY,
+                            _registers[GpuRegister.Ly] + 16,
+                            _spriteY + _lcdc.GetSpriteHeight()
+                        )
+                    )
                     {
-                        sprites[spritePosIndex++] = new SpritePosition(spriteX, spriteY, spriteAddress);
+                        _sprites[_spritePosIndex++] = new SpritePosition(
+                            _spriteX,
+                            _spriteY,
+                            spriteAddress
+                        );
                     }
 
-                    i++;
-                    state = State.READING_Y;
+                    _i++;
+                    _state = State.ReadingY;
                     break;
             }
 
-            return i < 40;
+            return _i < 40;
         }
 
-        public SpritePosition[] getSprites()
+        public SpritePosition?[] GetSprites()
         {
-            return sprites;
+            return _sprites;
         }
 
-        private static bool between(int from, int x, int to)
+        private static bool Between(int from, int x, int to)
         {
             return from <= x && x < to;
         }

@@ -5,110 +5,127 @@ using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Gpu
 {
-    public class Gpu
+    public class Gpu : IAddressSpace
     {
-        private readonly IAddressSpace videoRam0;
+        private readonly IAddressSpace _videoRam0;
 
-        private readonly IAddressSpace videoRam1;
+        private readonly IAddressSpace? _videoRam1;
 
-        private readonly IAddressSpace oamRam;
+        private readonly IAddressSpace _oamRam;
 
-        private readonly IDisplay display;
+        private readonly IDisplay _display;
 
-        private readonly InterruptManager interruptManager;
+        private readonly InterruptManager _interruptManager;
 
-        private readonly Dma dma;
+        private readonly Dma _dma;
 
-        private readonly Lcdc lcdc;
+        private readonly Lcdc _lcdc;
 
-        private readonly bool gbc;
+        private readonly bool _gbc;
 
-        private readonly ColorPalette bgPalette;
+        private readonly ColorPalette _bgPalette;
 
-        private readonly ColorPalette oamPalette;
+        private readonly ColorPalette _oamPalette;
 
-        private readonly HBlankPhase hBlankPhase;
+        private readonly HBlankPhase _hBlankPhase;
 
-        private readonly OamSearch oamSearchPhase;
+        private readonly OamSearch _oamSearchPhase;
 
-        private readonly PixelTransfer pixelTransferPhase;
+        private readonly PixelTransfer _pixelTransferPhase;
 
-        private readonly VBlankPhase vBlankPhase;
+        private readonly VBlankPhase _vBlankPhase;
 
-        private bool lcdEnabled = true;
+        private bool _lcdEnabled = true;
 
-        private int lcdEnabledDelay;
+        private int _lcdEnabledDelay;
 
-        private MemoryRegisters r;
+        private MemoryRegisters _r;
 
-        private int ticksInLine;
+        private int _ticksInLine;
 
-        private Mode mode;
+        private Mode _mode;
 
-        private IGpuPhase phase;
+        private IGpuPhase _phase;
 
-        public Gpu(IDisplay display, InterruptManager interruptManager, Dma dma, Ram oamRam, bool gbc)
+        public Gpu(
+            IDisplay display,
+            InterruptManager interruptManager,
+            Dma dma,
+            Ram oamRam,
+            bool gbc
+        )
         {
-            this.r = new MemoryRegisters(GpuRegister.GetAll());
-            this.lcdc = new Lcdc();
-            this.interruptManager = interruptManager;
-            this.gbc = gbc;
-            this.videoRam0 = new Ram(0x8000, 0x2000);
+            _r = new MemoryRegisters(GpuRegister.GetAll());
+            _lcdc = new Lcdc();
+            _interruptManager = interruptManager;
+            _gbc = gbc;
+            _videoRam0 = new Ram(0x8000, 0x2000);
             if (gbc)
             {
-                this.videoRam1 = new Ram(0x8000, 0x2000);
+                _videoRam1 = new Ram(0x8000, 0x2000);
             }
             else
             {
-                this.videoRam1 = null;
+                _videoRam1 = null;
             }
 
-            this.oamRam = oamRam;
-            this.dma = dma;
+            _oamRam = oamRam;
+            _dma = dma;
 
-            this.bgPalette = new ColorPalette(0xff68);
-            this.oamPalette = new ColorPalette(0xff6a);
-            oamPalette.fillWithFF();
+            _bgPalette = new ColorPalette(0xff68);
+            _oamPalette = new ColorPalette(0xff6a);
+            _oamPalette.FillWithFf();
 
-            this.oamSearchPhase = new OamSearch(oamRam, lcdc, r);
-            this.pixelTransferPhase =
-                new PixelTransfer(videoRam0, videoRam1, oamRam, display, lcdc, r, gbc, bgPalette, oamPalette);
-            this.hBlankPhase = new HBlankPhase();
-            this.vBlankPhase = new VBlankPhase();
+            _oamSearchPhase = new OamSearch(oamRam, _lcdc, _r);
+            _pixelTransferPhase = new PixelTransfer(
+                _videoRam0,
+                _videoRam1,
+                oamRam,
+                display,
+                _lcdc,
+                _r,
+                gbc,
+                _bgPalette,
+                _oamPalette
+            );
+            _hBlankPhase = new HBlankPhase();
+            _vBlankPhase = new VBlankPhase();
 
-            this.mode = Mode.OamSearch;
-            this.phase = oamSearchPhase.start();
+            _mode = Mode.OamSearch;
+            _phase = _oamSearchPhase.Start();
 
-            this.display = display;
+            _display = display;
         }
 
-        private IAddressSpace getAddressSpace(int address)
+        private IAddressSpace? GetAddressSpace(int address)
         {
-            if (videoRam0.accepts(address) /* && mode != Mode.PixelTransfer*/)
+            if (
+                _videoRam0.Accepts(address) /* && mode != Mode.PixelTransfer*/
+            )
             {
-                return getVideoRam();
+                return GetVideoRam();
             }
             else if (
-                oamRam.accepts(address) &&
-                !dma.IsOamBlocked() /* && mode != Mode.OamSearch && mode != Mode.PixelTransfer*/)
+                _oamRam.Accepts(address) && !_dma.IsOamBlocked() /* && mode != Mode.OamSearch && mode != Mode.PixelTransfer*/
+            )
             {
-                return oamRam;
+                return _oamRam;
             }
-            else if (lcdc.accepts(address))
+            else if (_lcdc.Accepts(address))
             {
-                return lcdc;
+                return _lcdc;
             }
-            else if (r.accepts(address))
+            else if (_r.Accepts(address))
             {
-                return r;
+                return _r;
             }
-            else if (gbc && bgPalette.accepts(address))
+            else if (_gbc && _bgPalette.Accepts(address))
             {
-                return bgPalette;
+                return _bgPalette;
             }
-            else if (gbc && oamPalette.accepts(address))
+            else if (_gbc && _oamPalette.Accepts(address))
             {
-                return oamPalette;
+                return _oamPalette;
             }
             else
             {
@@ -116,105 +133,105 @@ namespace Sharp.GB.Gpu
             }
         }
 
-        private IAddressSpace getVideoRam()
+        private IAddressSpace GetVideoRam()
         {
-            if (gbc && (r[GpuRegister.VBK()] & 1) == 1)
+            if (_gbc && (_r[GpuRegister.Vbk] & 1) == 1)
             {
-                return videoRam1;
+                return _videoRam1!;
             }
             else
             {
-                return videoRam0;
+                return _videoRam0;
             }
         }
 
-        public IAddressSpace getVideoRam0()
+        public IAddressSpace GetVideoRam0()
         {
-            return videoRam0;
+            return _videoRam0;
         }
 
-        public IAddressSpace getVideoRam1()
+        public IAddressSpace? GetVideoRam1()
         {
-            return videoRam1;
+            return _videoRam1;
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
-            return getAddressSpace(address) != null;
+            return GetAddressSpace(address) != null;
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
-            if (address == GpuRegister.STAT().GetAddress())
+            if (address == GpuRegister.Stat.GetAddress())
             {
-                setStat(value);
+                SetStat(value);
             }
             else
             {
-                IAddressSpace space = getAddressSpace(address);
-                if (space == lcdc)
+                IAddressSpace? space = GetAddressSpace(address);
+                if (space == _lcdc)
                 {
-                    setLcdc(value);
+                    SetLcdc(value);
                 }
                 else if (space != null)
                 {
-                    space.setByte(address, value);
+                    space.SetByte(address, value);
                 }
             }
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
-            if (address == GpuRegister.STAT().GetAddress())
+            if (address == GpuRegister.Stat.GetAddress())
             {
-                return getStat();
+                return GetStat();
             }
             else
             {
-                IAddressSpace space = getAddressSpace(address);
+                IAddressSpace? space = GetAddressSpace(address);
                 if (space == null)
                 {
                     return 0xff;
                 }
-                else if (address == GpuRegister.VBK().GetAddress())
+                else if (address == GpuRegister.Vbk.GetAddress())
                 {
-                    return gbc ? 0xfe : 0xff;
+                    return _gbc ? 0xfe : 0xff;
                 }
                 else
                 {
-                    return space.getByte(address);
+                    return space.GetByte(address);
                 }
             }
         }
 
-        public Mode tick()
+        public Mode Tick()
         {
-            if (!lcdEnabled)
+            if (!_lcdEnabled)
             {
-                if (lcdEnabledDelay != -1)
+                if (_lcdEnabledDelay != -1)
                 {
-                    if (--lcdEnabledDelay == 0)
+                    if (--_lcdEnabledDelay == 0)
                     {
-                        display.enableLcd();
-                        lcdEnabled = true;
+                        _display.EnableLcd();
+                        _lcdEnabled = true;
                     }
                 }
             }
 
-            if (!lcdEnabled)
+            if (!_lcdEnabled)
             {
-                return Mode.UNDEFINED;
+                return Mode.Undefined;
             }
 
-            Mode oldMode = mode;
-            ticksInLine++;
-            if (phase.tick())
+            Mode oldMode = _mode;
+            _ticksInLine++;
+            if (_phase.Tick())
             {
                 // switch line 153 to 0
-                if (ticksInLine == 4 && mode == Mode.VBlank && r[GpuRegister.LY()] == 153)
+                if (_ticksInLine == 4 && _mode == Mode.VBlank && _r[GpuRegister.Ly] == 153)
                 {
-                    r.put(GpuRegister.LY(), 0);
-                    requestLycEqualsLyInterrupt();
+                    _r.Put(GpuRegister.Ly, 0);
+                    RequestLycEqualsLyInterrupt();
                 }
             }
             else
@@ -222,153 +239,155 @@ namespace Sharp.GB.Gpu
                 switch (oldMode)
                 {
                     case Mode.OamSearch:
-                        mode = Mode.PixelTransfer;
-                        phase = pixelTransferPhase.start(oamSearchPhase.getSprites());
+                        _mode = Mode.PixelTransfer;
+                        _phase = _pixelTransferPhase.Start(_oamSearchPhase.GetSprites());
                         break;
 
                     case Mode.PixelTransfer:
-                        mode = Mode.HBlank;
-                        phase = hBlankPhase.start(ticksInLine);
-                        requestLcdcInterrupt(3);
+                        _mode = Mode.HBlank;
+                        _phase = _hBlankPhase.Start(_ticksInLine);
+                        RequestLcdcInterrupt(3);
                         break;
 
                     case Mode.HBlank:
-                        ticksInLine = 0;
-                        if (r.PreIncrement(GpuRegister.LY()) == 144)
+                        _ticksInLine = 0;
+                        if (_r.PreIncrement(GpuRegister.Ly) == 144)
                         {
-                            mode = Mode.VBlank;
-                            phase = vBlankPhase.start();
-                            interruptManager.requestInterrupt(InterruptType.VBlank());
-                            requestLcdcInterrupt(4);
+                            _mode = Mode.VBlank;
+                            _phase = _vBlankPhase.Start();
+                            _interruptManager.RequestInterrupt(InterruptType.VBlank);
+                            RequestLcdcInterrupt(4);
                         }
                         else
                         {
-                            mode = Mode.OamSearch;
-                            phase = oamSearchPhase.start();
+                            _mode = Mode.OamSearch;
+                            _phase = _oamSearchPhase.Start();
                         }
 
-                        requestLcdcInterrupt(5);
-                        requestLycEqualsLyInterrupt();
+                        RequestLcdcInterrupt(5);
+                        RequestLycEqualsLyInterrupt();
                         break;
 
                     case Mode.VBlank:
-                        ticksInLine = 0;
-                        if (r.PreIncrement(GpuRegister.LY()) == 1)
+                        _ticksInLine = 0;
+                        if (_r.PreIncrement(GpuRegister.Ly) == 1)
                         {
-                            mode = Mode.OamSearch;
-                            r.put(GpuRegister.LY(), 0);
-                            phase = oamSearchPhase.start();
-                            requestLcdcInterrupt(5);
+                            _mode = Mode.OamSearch;
+                            _r.Put(GpuRegister.Ly, 0);
+                            _phase = _oamSearchPhase.Start();
+                            RequestLcdcInterrupt(5);
                         }
                         else
                         {
-                            phase = vBlankPhase.start();
+                            _phase = _vBlankPhase.Start();
                         }
 
-                        requestLycEqualsLyInterrupt();
+                        RequestLycEqualsLyInterrupt();
                         break;
                 }
             }
 
-            if (oldMode == mode)
+            if (oldMode == _mode)
             {
-                return Mode.UNDEFINED;
+                return Mode.Undefined;
             }
             else
             {
-                return mode;
+                return _mode;
             }
         }
 
-        public int getTicksInLine()
+        public int GetTicksInLine()
         {
-            return ticksInLine;
+            return _ticksInLine;
         }
 
-        private void requestLcdcInterrupt(int statBit)
+        private void RequestLcdcInterrupt(int statBit)
         {
-            if ((r[GpuRegister.STAT()] & (1 << statBit)) != 0)
+            if ((_r[GpuRegister.Stat] & (1 << statBit)) != 0)
             {
-                interruptManager.requestInterrupt(InterruptType.LCDC);
+                _interruptManager.RequestInterrupt(InterruptType.Lcdc);
             }
         }
 
-        private void requestLycEqualsLyInterrupt()
+        private void RequestLycEqualsLyInterrupt()
         {
-            if (r[GpuRegister.LYC()] == r[GpuRegister.LY()])
+            if (_r[GpuRegister.Lyc] == _r[GpuRegister.Ly])
             {
-                requestLcdcInterrupt(6);
+                RequestLcdcInterrupt(6);
             }
         }
 
-        private int getStat()
+        private int GetStat()
         {
-            return r[GpuRegister.STAT()] | (int)mode | (r[GpuRegister.LYC()] == r[GpuRegister.LY()] ? (1 << 2) : 0) |
-                   0x80;
+            return _r[GpuRegister.Stat]
+                | (int)_mode
+                | (_r[GpuRegister.Lyc] == _r[GpuRegister.Ly] ? (1 << 2) : 0)
+                | 0x80;
         }
 
-        private void setStat(int value)
+        private void SetStat(int value)
         {
-            r.put(GpuRegister.STAT(), value & 0b11111000); // last three bits are read-only
+            _r.Put(GpuRegister.Stat, value & 0b11111000); // last three bits are read-only
         }
 
-        private void setLcdc(int value)
+        private void SetLcdc(int value)
         {
-            lcdc.set(value);
+            _lcdc.Set(value);
             if ((value & (1 << 7)) == 0)
             {
-                disableLcd();
+                DisableLcd();
             }
             else
             {
-                enableLcd();
+                EnableLcd();
             }
         }
 
-        private void disableLcd()
+        private void DisableLcd()
         {
-            r.put(GpuRegister.LY(), 0);
-            this.ticksInLine = 0;
-            this.phase = hBlankPhase.start(250);
-            this.mode = Mode.HBlank;
-            this.lcdEnabled = false;
-            this.lcdEnabledDelay = -1;
-            display.disableLcd();
+            _r.Put(GpuRegister.Ly, 0);
+            _ticksInLine = 0;
+            _phase = _hBlankPhase.Start(250);
+            _mode = Mode.HBlank;
+            _lcdEnabled = false;
+            _lcdEnabledDelay = -1;
+            _display.DisableLcd();
         }
 
-        private void enableLcd()
+        private void EnableLcd()
         {
-            lcdEnabledDelay = 244;
+            _lcdEnabledDelay = 244;
         }
 
-        public bool isLcdEnabled()
+        public bool IsLcdEnabled()
         {
-            return lcdEnabled;
+            return _lcdEnabled;
         }
 
-        public Lcdc getLcdc()
+        public Lcdc GetLcdc()
         {
-            return lcdc;
+            return _lcdc;
         }
 
-        public MemoryRegisters getRegisters()
+        public MemoryRegisters GetRegisters()
         {
-            return r;
+            return _r;
         }
 
-        public bool isGbc()
+        public bool IsGbc()
         {
-            return gbc;
+            return _gbc;
         }
 
-        public ColorPalette getBgPalette()
+        public ColorPalette GetBgPalette()
         {
-            return bgPalette;
+            return _bgPalette;
         }
 
-        public Mode getMode()
+        public Mode GetMode()
         {
-            return mode;
+            return _mode;
         }
     }
 }

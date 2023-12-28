@@ -1,227 +1,321 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using Sharp.GB.Cpu.OpCode;
 
 namespace Sharp.GB.Cpu
 {
     public class OpCodes
     {
-        public static ImmutableList<Opcode> COMMANDS;
+        public static List<Opcode?> Commands;
 
-        public static ImmutableList<Opcode> EXT_COMMANDS;
+        public static List<Opcode?> ExtCommands;
 
         static OpCodes()
         {
             OpcodeBuilder[] opcodes = new OpcodeBuilder[0x100];
             OpcodeBuilder[] extOpcodes = new OpcodeBuilder[0x100];
 
-            regCmd(opcodes, 0x00, "NOP");
+            RegCmd(opcodes, 0x00, "NOP");
 
-            foreach (var t in indexedList<string>(0x01, 0x10, "BC", "DE", "HL", "SP"))
+            foreach (var t in IndexedList<string>(0x01, 0x10, "BC", "DE", "HL", "SP"))
             {
-                regLoad(opcodes, t.Key, t.Value, "d16");
+                RegLoad(opcodes, t.Key, t.Value, "d16");
             }
 
-            foreach (var t in indexedList(0x02, 0x10, "(BC)", "(DE)"))
+            foreach (var t in IndexedList(0x02, 0x10, "(BC)", "(DE)"))
             {
-                regLoad(opcodes, t.Key, t.Value, "A");
+                RegLoad(opcodes, t.Key, t.Value, "A");
             }
 
-            foreach (var t in indexedList(0x03, 0x10, "BC", "DE", "HL", "SP"))
+            foreach (var t in IndexedList(0x03, 0x10, "BC", "DE", "HL", "SP"))
             {
-                regCmd(opcodes, t, "INC {}").load(t.Value).alu("INC").store(t.Value);
+                RegCmd(opcodes, t, "INC {}").Load(t.Value).Alu("INC").Store(t.Value);
             }
 
-            foreach (var t in indexedList(0x04, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            foreach (var t in IndexedList(0x04, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
             {
-                regCmd(opcodes, t, "INC {}").load(t.Value).alu("INC").store(t.Value);
+                RegCmd(opcodes, t, "INC {}").Load(t.Value).Alu("INC").Store(t.Value);
             }
 
-            foreach (var t in indexedList(0x05, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            foreach (var t in IndexedList(0x05, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
             {
-                regCmd(opcodes, t, "DEC {}").load(t.Value).alu("DEC").store(t.Value);
+                RegCmd(opcodes, t, "DEC {}").Load(t.Value).Alu("DEC").Store(t.Value);
             }
 
-            foreach (var t in indexedList(0x06, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            foreach (var t in IndexedList(0x06, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
             {
-                regLoad(opcodes, t.Key, t.Value, "d8");
+                RegLoad(opcodes, t.Key, t.Value, "d8");
             }
 
-            foreach (var o in indexedList(0x07, 0x08, "RLC", "RRC", "RL", "RR"))
+            foreach (var o in IndexedList(0x07, 0x08, "RLC", "RRC", "RL", "RR"))
             {
-                regCmd(opcodes, o, o.Value + "A").load("A").alu(o.Value).clearZ().store("A");
+                RegCmd(opcodes, o, o.Value + "A").Load("A").Alu(o.Value).ClearZ().Store("A");
             }
 
-            regLoad(opcodes, 0x08, "(a16)", "SP");
+            RegLoad(opcodes, 0x08, "(a16)", "SP");
 
-            foreach (var t in indexedList(0x09, 0x10, "BC", "DE", "HL", "SP"))
+            foreach (var t in IndexedList(0x09, 0x10, "BC", "DE", "HL", "SP"))
             {
-                regCmd(opcodes, t, "ADD HL,{}").load("HL").alu("ADD", t.Value).store("HL");
+                RegCmd(opcodes, t, "ADD HL,{}").Load("HL").Alu("ADD", t.Value).Store("HL");
             }
 
-            foreach (var t in indexedList(0x0a, 0x10, "(BC)", "(DE)"))
+            foreach (var t in IndexedList(0x0a, 0x10, "(BC)", "(DE)"))
             {
-                regLoad(opcodes, t.Key, "A", t.Value);
+                RegLoad(opcodes, t.Key, "A", t.Value);
             }
 
-            foreach (var t in indexedList(0x0b, 0x10, "BC", "DE", "HL", "SP"))
+            foreach (var t in IndexedList(0x0b, 0x10, "BC", "DE", "HL", "SP"))
             {
-                regCmd(opcodes, t, "DEC {}").load(t.Value).alu("DEC").store(t.Value);
+                RegCmd(opcodes, t, "DEC {}").Load(t.Value).Alu("DEC").Store(t.Value);
             }
 
-            regCmd(opcodes, 0x10, "STOP");
+            RegCmd(opcodes, 0x10, "STOP");
 
-            regCmd(opcodes, 0x18, "JR r8").load("PC").alu("ADD", "r8").store("PC");
+            RegCmd(opcodes, 0x18, "JR r8").Load("PC").Alu("ADD", "r8").Store("PC");
 
-            foreach (var c in indexedList(0x20, 0x08, "NZ", "Z", "NC", "C"))
+            foreach (var c in IndexedList(0x20, 0x08, "NZ", "Z", "NC", "C"))
             {
-                regCmd(opcodes, c, "JR {},r8").load("PC").proceedIf(c.Value).alu("ADD", "r8").store("PC");
+                RegCmd(opcodes, c, "JR {},r8")
+                    .Load("PC")
+                    .ProceedIf(c.Value)
+                    .Alu("ADD", "r8")
+                    .Store("PC");
             }
 
-            regCmd(opcodes, 0x22, "LD (HL+),A").copyByte("(HL)", "A").aluHL("INC");
-            regCmd(opcodes, 0x2a, "LD A,(HL+)").copyByte("A", "(HL)").aluHL("INC");
+            RegCmd(opcodes, 0x22, "LD (HL+),A").CopyByte("(HL)", "A").AluHl("INC");
+            RegCmd(opcodes, 0x2a, "LD A,(HL+)").CopyByte("A", "(HL)").AluHl("INC");
 
-            regCmd(opcodes, 0x27, "DAA").load("A").alu("DAA").store("A");
-            regCmd(opcodes, 0x2f, "CPL").load("A").alu("CPL").store("A");
+            RegCmd(opcodes, 0x27, "DAA").Load("A").Alu("DAA").Store("A");
+            RegCmd(opcodes, 0x2f, "CPL").Load("A").Alu("CPL").Store("A");
 
-            regCmd(opcodes, 0x32, "LD (HL-),A").copyByte("(HL)", "A").aluHL("DEC");
-            regCmd(opcodes, 0x3a, "LD A,(HL-)").copyByte("A", "(HL)").aluHL("DEC");
+            RegCmd(opcodes, 0x32, "LD (HL-),A").CopyByte("(HL)", "A").AluHl("DEC");
+            RegCmd(opcodes, 0x3a, "LD A,(HL-)").CopyByte("A", "(HL)").AluHl("DEC");
 
-            regCmd(opcodes, 0x37, "SCF").load("A").alu("SCF").store("A");
-            regCmd(opcodes, 0x3f, "CCF").load("A").alu("CCF").store("A");
+            RegCmd(opcodes, 0x37, "SCF").Load("A").Alu("SCF").Store("A");
+            RegCmd(opcodes, 0x3f, "CCF").Load("A").Alu("CCF").Store("A");
 
-            foreach (var t in indexedList(0x40, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
+            foreach (var t in IndexedList(0x40, 0x08, "B", "C", "D", "E", "H", "L", "(HL)", "A"))
             {
-                foreach (var s in indexedList(t.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
-                             "A"))
+                foreach (
+                    var s in IndexedList(t.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)", "A")
+                )
                 {
                     if (s.Key == 0x76)
                     {
                         continue;
                     }
 
-                    regLoad(opcodes, s.Key, t.Value, s.Value);
+                    RegLoad(opcodes, s.Key, t.Value, s.Value);
                 }
             }
 
-            regCmd(opcodes, 0x76, "HALT");
+            RegCmd(opcodes, 0x76, "HALT");
 
-            foreach (var o in indexedList(0x80, 0x08, "ADD", "ADC", "SUB", "SBC", "AND", "XOR", "OR",
-                         "CP"))
+            foreach (
+                var o in IndexedList(
+                    0x80,
+                    0x08,
+                    "ADD",
+                    "ADC",
+                    "SUB",
+                    "SBC",
+                    "AND",
+                    "XOR",
+                    "OR",
+                    "CP"
+                )
+            )
             {
-                foreach (var t in indexedList(o.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
-                             "A"))
+                foreach (
+                    var t in IndexedList(o.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)", "A")
+                )
                 {
-                    regCmd(opcodes, t, o.Value + " {}").load("A").alu(o.Value, t.Value).store("A");
+                    RegCmd(opcodes, t, o.Value + " {}").Load("A").Alu(o.Value, t.Value).Store("A");
                 }
             }
 
-            foreach (var c in indexedList(0xc0, 0x08, "NZ", "Z", "NC", "C"))
+            foreach (var c in IndexedList(0xc0, 0x08, "NZ", "Z", "NC", "C"))
             {
-                regCmd(opcodes, c, "RET {}").extraCycle().proceedIf(c.Value).pop().forceFinish().store("PC");
+                RegCmd(opcodes, c, "RET {}")
+                    .ExtraCycle()
+                    .ProceedIf(c.Value)
+                    .Pop()
+                    .ForceFinish()
+                    .Store("PC");
             }
 
-            foreach (var t in indexedList(0xc1, 0x10, "BC", "DE", "HL", "AF"))
+            foreach (var t in IndexedList(0xc1, 0x10, "BC", "DE", "HL", "AF"))
             {
-                regCmd(opcodes, t, "POP {}").pop().store(t.Value);
+                RegCmd(opcodes, t, "POP {}").Pop().Store(t.Value);
             }
 
-            foreach (var c in indexedList(0xc2, 0x08, "NZ", "Z", "NC", "C"))
+            foreach (var c in IndexedList(0xc2, 0x08, "NZ", "Z", "NC", "C"))
             {
-                regCmd(opcodes, c, "JP {},a16").load("a16").proceedIf(c.Value).store("PC").extraCycle();
+                RegCmd(opcodes, c, "JP {},a16")
+                    .Load("a16")
+                    .ProceedIf(c.Value)
+                    .Store("PC")
+                    .ExtraCycle();
             }
 
-            regCmd(opcodes, 0xc3, "JP a16").load("a16").store("PC").extraCycle();
+            RegCmd(opcodes, 0xc3, "JP a16").Load("a16").Store("PC").ExtraCycle();
 
-            foreach (var c in indexedList(0xc4, 0x08, "NZ", "Z", "NC", "C"))
+            foreach (var c in IndexedList(0xc4, 0x08, "NZ", "Z", "NC", "C"))
             {
-                regCmd(opcodes, c, "CALL {},a16").proceedIf(c.Value).extraCycle().load("PC").push().load("a16")
-                    .store("PC");
+                RegCmd(opcodes, c, "CALL {},a16")
+                    .ProceedIf(c.Value)
+                    .ExtraCycle()
+                    .Load("PC")
+                    .Push()
+                    .Load("a16")
+                    .Store("PC");
             }
 
-            foreach (var t in indexedList(0xc5, 0x10, "BC", "DE", "HL", "AF"))
+            foreach (var t in IndexedList(0xc5, 0x10, "BC", "DE", "HL", "AF"))
             {
-                regCmd(opcodes, t, "PUSH {}").extraCycle().load(t.Value).push();
+                RegCmd(opcodes, t, "PUSH {}").ExtraCycle().Load(t.Value).Push();
             }
 
-            foreach (var o in indexedList(0xc6, 0x08, "ADD", "ADC", "SUB", "SBC", "AND", "XOR", "OR",
-                         "CP"))
+            foreach (
+                var o in IndexedList(
+                    0xc6,
+                    0x08,
+                    "ADD",
+                    "ADC",
+                    "SUB",
+                    "SBC",
+                    "AND",
+                    "XOR",
+                    "OR",
+                    "CP"
+                )
+            )
             {
-                regCmd(opcodes, o, o.Value + " d8").load("A").alu(o.Value, "d8").store("A");
+                RegCmd(opcodes, o, o.Value + " d8").Load("A").Alu(o.Value, "d8").Store("A");
             }
 
             for (int i = 0xc7, j = 0x00; i <= 0xf7; i += 0x10, j += 0x10)
             {
                 // TODO: Probably string.Format is wrong here
-                regCmd(opcodes, i, string.Format("RST %02XH", j)).load("PC").push().forceFinish().loadWord(j)
-                    .store("PC");
+                RegCmd(opcodes, i, string.Format("RST %02XH", j))
+                    .Load("PC")
+                    .Push()
+                    .ForceFinish()
+                    .LoadWord(j)
+                    .Store("PC");
             }
 
-            regCmd(opcodes, 0xc9, "RET").pop().forceFinish().store("PC");
+            RegCmd(opcodes, 0xc9, "RET").Pop().ForceFinish().Store("PC");
 
-            regCmd(opcodes, 0xcd, "CALL a16").load("PC").extraCycle().push().load("a16").store("PC");
+            RegCmd(opcodes, 0xcd, "CALL a16")
+                .Load("PC")
+                .ExtraCycle()
+                .Push()
+                .Load("a16")
+                .Store("PC");
 
             for (int i = 0xcf, j = 0x08; i <= 0xff; i += 0x10, j += 0x10)
             {
-                regCmd(opcodes, i, string.Format("RST %02XH", j)).load("PC").push().forceFinish().loadWord(j)
-                    .store("PC");
+                RegCmd(opcodes, i, string.Format("RST %02XH", j))
+                    .Load("PC")
+                    .Push()
+                    .ForceFinish()
+                    .LoadWord(j)
+                    .Store("PC");
             }
 
-            regCmd(opcodes, 0xd9, "RETI").pop().forceFinish().store("PC").switchInterrupts(true, false);
+            RegCmd(opcodes, 0xd9, "RETI")
+                .Pop()
+                .ForceFinish()
+                .Store("PC")
+                .SwitchInterrupts(true, false);
 
-            regLoad(opcodes, 0xe2, "(C)", "A");
-            regLoad(opcodes, 0xf2, "A", "(C)");
+            RegLoad(opcodes, 0xe2, "(C)", "A");
+            RegLoad(opcodes, 0xf2, "A", "(C)");
 
-            regCmd(opcodes, 0xe9, "JP (HL)").load("HL").store("PC");
+            RegCmd(opcodes, 0xe9, "JP (HL)").Load("HL").Store("PC");
 
-            regCmd(opcodes, 0xe0, "LDH (a8),A").copyByte("(a8)", "A");
-            regCmd(opcodes, 0xf0, "LDH A,(a8)").copyByte("A", "(a8)");
+            RegCmd(opcodes, 0xe0, "LDH (a8),A").CopyByte("(a8)", "A");
+            RegCmd(opcodes, 0xf0, "LDH A,(a8)").CopyByte("A", "(a8)");
 
-            regCmd(opcodes, 0xe8, "ADD SP,r8").load("SP").alu("ADD_SP", "r8").extraCycle().store("SP");
-            regCmd(opcodes, 0xf8, "LD HL,SP+r8").load("SP").alu("ADD_SP", "r8").store("HL");
+            RegCmd(opcodes, 0xe8, "ADD SP,r8")
+                .Load("SP")
+                .Alu("ADD_SP", "r8")
+                .ExtraCycle()
+                .Store("SP");
+            RegCmd(opcodes, 0xf8, "LD HL,SP+r8").Load("SP").Alu("ADD_SP", "r8").Store("HL");
 
-            regLoad(opcodes, 0xea, "(a16)", "A");
-            regLoad(opcodes, 0xfa, "A", "(a16)");
+            RegLoad(opcodes, 0xea, "(a16)", "A");
+            RegLoad(opcodes, 0xfa, "A", "(a16)");
 
-            regCmd(opcodes, 0xf3, "DI").switchInterrupts(false, true);
-            regCmd(opcodes, 0xfb, "EI").switchInterrupts(true, true);
+            RegCmd(opcodes, 0xf3, "DI").SwitchInterrupts(false, true);
+            RegCmd(opcodes, 0xfb, "EI").SwitchInterrupts(true, true);
 
-            regLoad(opcodes, 0xf9, "SP", "HL").extraCycle();
+            RegLoad(opcodes, 0xf9, "SP", "HL").ExtraCycle();
 
-            foreach (var o in indexedList(0x00, 0x08, "RLC", "RRC", "RL", "RR", "SLA", "SRA", "SWAP",
-                         "SRL"))
+            foreach (
+                var o in IndexedList(
+                    0x00,
+                    0x08,
+                    "RLC",
+                    "RRC",
+                    "RL",
+                    "RR",
+                    "SLA",
+                    "SRA",
+                    "SWAP",
+                    "SRL"
+                )
+            )
             {
-                foreach (var t in indexedList(o.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)",
-                             "A"))
+                foreach (
+                    var t in IndexedList(o.Key, 0x01, "B", "C", "D", "E", "H", "L", "(HL)", "A")
+                )
                 {
-                    regCmd(extOpcodes, t, o.Value + " {}").load(t.Value).alu(o.Value)
-                        .store(t.Value);
+                    RegCmd(extOpcodes, t, o.Value + " {}")
+                        .Load(t.Value)
+                        .Alu(o.Value)
+                        .Store(t.Value);
                 }
             }
 
-            foreach (var o in indexedList(0x40, 0x40, "BIT", "RES", "SET"))
+            foreach (var o in IndexedList(0x40, 0x40, "BIT", "RES", "SET"))
             {
                 for (int b = 0; b < 0x08; b++)
                 {
-                    foreach (var t in indexedList(o.Key + b * 0x08, 0x01, "B", "C", "D", "E", "H",
-                                 "L", "(HL)", "A"))
+                    foreach (
+                        var t in IndexedList(
+                            o.Key + b * 0x08,
+                            0x01,
+                            "B",
+                            "C",
+                            "D",
+                            "E",
+                            "H",
+                            "L",
+                            "(HL)",
+                            "A"
+                        )
+                    )
                     {
                         if ("BIT".Equals(o.Value) && "(HL)".Equals(t.Value))
                         {
-                            regCmd(extOpcodes, t, string.Format("BIT %d,(HL)", b)).bitHL(b);
+                            RegCmd(extOpcodes, t, string.Format("BIT %d,(HL)", b)).BitHl(b);
                         }
                         else
                         {
-                            regCmd(extOpcodes, t, string.Format("%s %d,%s", o.Value, b, t.Value))
-                                .load(t.Value).alu(o.Value, b).store(t.Value);
+                            RegCmd(extOpcodes, t, string.Format("%s %d,%s", o.Value, b, t.Value))
+                                .Load(t.Value)
+                                .Alu(o.Value, b)
+                                .Store(t.Value);
                         }
                     }
                 }
             }
 
-            List<Opcode> commands = new(0x100);
-            List<Opcode> extCommands = new(0x100);
+            List<Opcode?> commands = new(0x100);
+            List<Opcode?> extCommands = new(0x100);
 
             foreach (OpcodeBuilder b in opcodes)
             {
@@ -231,7 +325,7 @@ namespace Sharp.GB.Cpu
                 }
                 else
                 {
-                    commands.Add(b.build());
+                    commands.Add(b.Build());
                 }
             }
 
@@ -243,26 +337,32 @@ namespace Sharp.GB.Cpu
                 }
                 else
                 {
-                    extCommands.Add(b.build());
+                    extCommands.Add(b.Build());
                 }
             }
 
-            COMMANDS = commands.ToImmutableList();
-            EXT_COMMANDS = extCommands.ToImmutableList();
+            Commands = commands.ToList();
+            ExtCommands = extCommands.ToList();
         }
 
-
-        private static OpcodeBuilder regLoad(OpcodeBuilder[] commands, int opcode, String target, String source)
+        private static OpcodeBuilder RegLoad(
+            OpcodeBuilder[] commands,
+            int opcode,
+            string target,
+            string source
+        )
         {
-            return regCmd(commands, opcode, String.Format("LD %s,%s", target, source)).copyByte(target, source);
+            return RegCmd(commands, opcode, string.Format("LD %s,%s", target, source))
+                .CopyByte(target, source);
         }
 
-        private static OpcodeBuilder regCmd(OpcodeBuilder[] commands, int opcode, String label)
+        private static OpcodeBuilder RegCmd(OpcodeBuilder[] commands, int opcode, string label)
         {
             if (commands[opcode] != null)
             {
-                throw new ArgumentException(String.Format("Opcode %02X already exists: %s", opcode,
-                    commands[opcode]));
+                throw new ArgumentException(
+                    string.Format("Opcode %02X already exists: %s", opcode, commands[opcode])
+                );
             }
 
             OpcodeBuilder builder = new OpcodeBuilder(opcode, label);
@@ -270,12 +370,16 @@ namespace Sharp.GB.Cpu
             return builder;
         }
 
-        private static OpcodeBuilder regCmd(OpcodeBuilder[] commands, KeyValuePair<int, string> opcode, String label)
+        private static OpcodeBuilder RegCmd(
+            OpcodeBuilder[] commands,
+            KeyValuePair<int, string> opcode,
+            string label
+        )
         {
-            return regCmd(commands, opcode.Key, label.Replace("{}", opcode.Value));
+            return RegCmd(commands, opcode.Key, label.Replace("{}", opcode.Value));
         }
 
-        private static Dictionary<int, T> indexedList<T>(int start, int step, params T[] values)
+        private static Dictionary<int, T> IndexedList<T>(int start, int step, params T[] values)
         {
             Dictionary<int, T> map = new();
             int i = start;
@@ -289,7 +393,5 @@ namespace Sharp.GB.Cpu
         }
     }
 
-    public interface IOpcodeBuilder
-    {
-    }
+    public interface IOpcodeBuilder { }
 }

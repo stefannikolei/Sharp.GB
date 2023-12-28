@@ -21,13 +21,13 @@ namespace Sharp.GB.Memory.cart.Type
         private bool _ramWriteEnabled = false;
         private int _latchClockReg = 0xff;
 
-        private bool clockLatched;
+        private bool _clockLatched;
 
         public Mbc3(IReadOnlyList<int> cartridge, CartridgeType type, IBattery battery, int romBanks, int ramBanks)
         {
             _cartridge = cartridge;
             _ramBanks = ramBanks;
-            _ram = new int[0x2000 * Math.Max(this._ramBanks, 1)];
+            _ram = new int[0x2000 * Math.Max(_ramBanks, 1)];
             for (int i = 0; i < _ram.Length; i++)
             {
                 _ram[i] = 0xff;
@@ -42,13 +42,13 @@ namespace Sharp.GB.Memory.cart.Type
             _clock.Deserialize(clockData);
         }
 
-        public bool accepts(int address)
+        public bool Accepts(int address)
         {
             return (address >= 0x0000 && address < 0x8000) ||
                    (address >= 0xa000 && address < 0xc000);
         }
 
-        public void setByte(int address, int value)
+        public void SetByte(int address, int value)
         {
             if (address >= 0x0000 && address < 0x2000)
             {
@@ -71,15 +71,15 @@ namespace Sharp.GB.Memory.cart.Type
             {
                 if (value == 0x01 && _latchClockReg == 0x00)
                 {
-                    if (clockLatched)
+                    if (_clockLatched)
                     {
                         _clock.Unlatch();
-                        clockLatched = false;
+                        _clockLatched = false;
                     }
                     else
                     {
                         _clock.Latch();
-                        clockLatched = true;
+                        _clockLatched = true;
                     }
                 }
 
@@ -147,7 +147,7 @@ namespace Sharp.GB.Memory.cart.Type
             _selectedRomBank = bank;
         }
 
-        public int getByte(int address)
+        public int GetByte(int address)
         {
             if (address >= 0x0000 && address < 0x4000)
             {

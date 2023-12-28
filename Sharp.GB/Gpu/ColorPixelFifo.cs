@@ -2,74 +2,79 @@
 {
     public class ColorPixelFifo : IPixelFifo
     {
-        private readonly IntQueue pixels = new IntQueue(16);
+        private readonly IntQueue _pixels = new IntQueue(16);
 
-        private readonly IntQueue palettes = new IntQueue(16);
+        private readonly IntQueue _palettes = new IntQueue(16);
 
-        private readonly IntQueue priorities = new IntQueue(16);
+        private readonly IntQueue _priorities = new IntQueue(16);
 
-        private readonly Lcdc lcdc;
+        private readonly Lcdc _lcdc;
 
-        private readonly IDisplay display;
+        private readonly IDisplay _display;
 
-        private readonly ColorPalette bgPalette;
+        private readonly ColorPalette _bgPalette;
 
-        private readonly ColorPalette oamPalette;
+        private readonly ColorPalette _oamPalette;
 
-        public ColorPixelFifo(Lcdc lcdc, IDisplay display, ColorPalette bgPalette, ColorPalette oamPalette)
+        public ColorPixelFifo(
+            Lcdc lcdc,
+            IDisplay display,
+            ColorPalette bgPalette,
+            ColorPalette oamPalette
+        )
         {
-            this.lcdc = lcdc;
-            this.display = display;
-            this.bgPalette = bgPalette;
-            this.oamPalette = oamPalette;
+            this._lcdc = lcdc;
+            this._display = display;
+            this._bgPalette = bgPalette;
+            this._oamPalette = oamPalette;
         }
 
-        public int getLength()
+        public int GetLength()
         {
-            return pixels.Size();
+            return _pixels.Size();
         }
 
-        public void putPixelToScreen()
+        public void PutPixelToScreen()
         {
-            display.putColorPixel(dequeuePixel());
+            _display.PutColorPixel(DequeuePixel());
         }
 
-        private int dequeuePixel()
+        private int DequeuePixel()
         {
-            return getColor(priorities.dequeue(), palettes.dequeue(), pixels.dequeue());
+            return GetColor(_priorities.Dequeue(), _palettes.Dequeue(), _pixels.Dequeue());
         }
 
-        public void dropPixel()
+        public void DropPixel()
         {
-            dequeuePixel();
+            DequeuePixel();
         }
 
-        public void enqueue8Pixels(int[] pixelLine, TileAttributes tileAttributes)
+        public void Enqueue8Pixels(int[] pixelLine, TileAttributes tileAttributes)
         {
             foreach (int p in pixelLine)
             {
-                pixels.enqueue(p);
-                palettes.enqueue(tileAttributes.getColorPaletteIndex());
-                priorities.enqueue(tileAttributes.isPriority() ? 100 : -1);
+                _pixels.Enqueue(p);
+                _palettes.Enqueue(tileAttributes.GetColorPaletteIndex());
+                _priorities.Enqueue(tileAttributes.IsPriority() ? 100 : -1);
             }
         }
 
         /*
         lcdc.0
-    
+
         when 0 => sprites are always displayed on top of the bg
-    
+
         bg tile attribute.7
-    
+
         when 0 => use oam priority bit
         when 1 => bg priority
-    
+
         sprite attribute.7
-    
+
         when 0 => sprite above bg
         when 1 => sprite above bg color 0
          */
-        public void setOverlay(int[] pixelLine, int offset, TileAttributes spriteAttr, int oamIndex)
+        public void SetOverlay(int[] pixelLine, int offset, TileAttributes spriteAttr, int oamIndex)
         {
             for (int j = offset; j < pixelLine.Length; j++)
             {
@@ -80,10 +85,10 @@
                     continue; // color 0 is always transparent
                 }
 
-                int oldPriority = priorities.get(i);
+                int oldPriority = _priorities.Get(i);
 
                 bool put = false;
-                if ((oldPriority == -1 || oldPriority == 100) && !lcdc.isBgAndWindowDisplay())
+                if ((oldPriority == -1 || oldPriority == 100) && !_lcdc.IsBgAndWindowDisplay())
                 {
                     // this one takes precedence
                     put = true;
@@ -91,14 +96,14 @@
                 else if (oldPriority == 100)
                 {
                     // bg with priority
-                    put = pixels.get(i) == 0;
+                    put = _pixels.Get(i) == 0;
                 }
-                else if (oldPriority == -1 && !spriteAttr.isPriority())
+                else if (oldPriority == -1 && !spriteAttr.IsPriority())
                 {
                     // bg without priority
                     put = true;
                 }
-                else if (oldPriority == -1 && spriteAttr.isPriority() && pixels.get(i) == 0)
+                else if (oldPriority == -1 && spriteAttr.IsPriority() && _pixels.Get(i) == 0)
                 {
                     // bg without priority
                     put = true;
@@ -111,29 +116,29 @@
 
                 if (put)
                 {
-                    pixels.set(i, p);
-                    palettes.set(i, spriteAttr.getColorPaletteIndex());
-                    priorities.set(i, oamIndex);
+                    _pixels.Set(i, p);
+                    _palettes.Set(i, spriteAttr.GetColorPaletteIndex());
+                    _priorities.Set(i, oamIndex);
                 }
             }
         }
 
-        public void clear()
+        public void Clear()
         {
-            pixels.clear();
-            palettes.clear();
-            priorities.clear();
+            _pixels.Clear();
+            _palettes.Clear();
+            _priorities.Clear();
         }
 
-        private int getColor(int priority, int palette, int color)
+        private int GetColor(int priority, int palette, int color)
         {
             if (priority >= 0 && priority < 10)
             {
-                return oamPalette.getPalette(palette)[color];
+                return _oamPalette.GetPalette(palette)[color];
             }
             else
             {
-                return bgPalette.getPalette(palette)[color];
+                return _bgPalette.GetPalette(palette)[color];
             }
         }
     }
