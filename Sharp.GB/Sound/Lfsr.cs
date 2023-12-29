@@ -32,7 +32,7 @@ public class Lfsr
         return 1 & ~_lfsr;
     }
 
-    int GetValue()
+    public int GetValue()
     {
         return _lfsr;
     }

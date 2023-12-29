@@ -25,7 +25,7 @@ namespace Sharp.GB.Gpu
 
         public int GetLength()
         {
-            return _pixels.Size();
+            return _pixels.Size;
         }
 
         public void PutPixelToScreen()
@@ -38,7 +38,7 @@ namespace Sharp.GB.Gpu
             DequeuePixel();
         }
 
-        int DequeuePixel()
+        public int DequeuePixel()
         {
             _pixelType.Dequeue();
             return GetColor(_palettes.Dequeue(), _pixels.Dequeue());
@@ -77,7 +77,7 @@ namespace Sharp.GB.Gpu
             }
         }
 
-        IntQueue GetPixels()
+        public IntQueue GetPixels()
         {
             return _pixels;
         }

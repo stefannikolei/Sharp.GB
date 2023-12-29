@@ -15,8 +15,10 @@ namespace Sharp.GB.Memory
             {
                 if (_registers.ContainsKey(register.GetAddress()))
                 {
-                    throw new ArgumentException("Two registers with the same address can not be registered " +
-                                                register.GetAddress());
+                    throw new ArgumentException(
+                        "Two registers with the same address can not be registered "
+                            + register.GetAddress()
+                    );
                 }
 
                 _registers.Add(register.GetAddress(), register);
@@ -48,6 +50,7 @@ namespace Sharp.GB.Memory
             if (_registers.ContainsKey(register.GetAddress()))
             {
                 _values[register.GetAddress()] = value2;
+                return;
             }
 
             throw new ArgumentException("No valid register " + register);

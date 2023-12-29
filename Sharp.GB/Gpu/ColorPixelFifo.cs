@@ -31,7 +31,7 @@
 
         public int GetLength()
         {
-            return _pixels.Size();
+            return _pixels.Size;
         }
 
         public void PutPixelToScreen()

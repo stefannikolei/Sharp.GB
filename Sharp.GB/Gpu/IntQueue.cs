@@ -17,10 +17,7 @@ namespace Sharp.GB.Gpu
             _offset = 0;
         }
 
-        public int Size()
-        {
-            return _size;
-        }
+        public int Size => _size;
 
         public void Enqueue(int value)
         {

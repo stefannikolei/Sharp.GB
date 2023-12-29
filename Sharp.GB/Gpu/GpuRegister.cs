@@ -32,22 +32,6 @@ namespace Sharp.GB.Gpu
 
         RegisterType IRegister.Type => _type;
 
-        public static IRegister[] GetAll()
-        {
-            return
-            [
-                Stat,
-                Scy,
-                Scx,
-                Ly,
-                Lyc,
-                Bgp,
-                Obp0,
-                Obp1,
-                Wy,
-                Wx,
-                Vbk
-            ];
-        }
+        public static IRegister[] All => [Stat, Scy, Scx, Ly, Lyc, Bgp, Obp0, Obp1, Wy, Wx, Vbk];
     }
 }

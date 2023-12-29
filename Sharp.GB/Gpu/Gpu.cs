@@ -55,7 +55,7 @@ namespace Sharp.GB.Gpu
             bool gbc
         )
         {
-            _r = new MemoryRegisters(GpuRegister.GetAll());
+            _r = new MemoryRegisters(GpuRegister.All);
             _lcdc = new Lcdc();
             _interruptManager = interruptManager;
             _gbc = gbc;
