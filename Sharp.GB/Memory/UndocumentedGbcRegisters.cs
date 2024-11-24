@@ -8,7 +8,6 @@ namespace Sharp.GB.Memory
         private readonly IAddressSpace _ram = new Ram(0xff72, 6);
         private int _xff6C = 0xfe;
 
-
         public UndocumentedGbcRegisters()
         {
             _ram.SetByte(0xff74, 0xff);

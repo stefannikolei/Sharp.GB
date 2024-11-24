@@ -8,7 +8,7 @@ namespace Sharp.GB.Gpu.Phase
         private enum State
         {
             ReadingY,
-            ReadingX
+            ReadingX,
         }
 
         public class SpritePosition
@@ -104,11 +104,7 @@ namespace Sharp.GB.Gpu.Phase
                         )
                     )
                     {
-                        _sprites[_spritePosIndex++] = new(
-                            _spriteX,
-                            _spriteY,
-                            spriteAddress
-                        );
+                        _sprites[_spritePosIndex++] = new(_spriteX, _spriteY, spriteAddress);
                     }
 
                     _i++;

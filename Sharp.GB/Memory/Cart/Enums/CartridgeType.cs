@@ -23,6 +23,6 @@
         RomMbc5RamBattery = 0x01b,
         RomMbc5Rumble = 0x1c,
         RomMbc5RumbleSram = 0x1d,
-        RomMbc5RumbleSramBattery = 0x1e
+        RomMbc5RumbleSramBattery = 0x1e,
     }
 }

@@ -14,7 +14,6 @@ namespace Sharp.GB.Memory
             return address == 0xff70 || (address >= 0xd000 && address < 0xe000);
         }
 
-
         public void SetByte(int address, int value)
         {
             if (address == 0xff70)
@@ -26,7 +25,6 @@ namespace Sharp.GB.Memory
                 _ram[Translate(address)] = value;
             }
         }
-
 
         public int GetByte(int address)
         {

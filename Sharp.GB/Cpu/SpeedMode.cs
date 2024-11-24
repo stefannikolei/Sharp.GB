@@ -20,7 +20,9 @@ namespace Sharp.GB.Cpu
 
         public int GetByte(int address)
         {
-            return (_currentSpeed ? (1 << 7) : 0) | (_prepareSpeedSwitch ? (1 << 0) : 0) | 0b01111110;
+            return (_currentSpeed ? (1 << 7) : 0)
+                | (_prepareSpeedSwitch ? (1 << 0) : 0)
+                | 0b01111110;
         }
 
         public bool OnStop()

@@ -18,7 +18,7 @@ namespace Sharp.GB.Gpu
             ReadSpriteFlags,
             ReadSpriteData1,
             ReadSpriteData2,
-            PushSprite
+            PushSprite,
         }
 
         private static readonly int[] s_emptyPixelLine = new int[8];
@@ -295,7 +295,7 @@ namespace Sharp.GB.Gpu
                 State.ReadData2 => true,
                 State.ReadSpriteFlags => true,
                 State.PushSprite => true,
-                _ => false
+                _ => false,
             };
         }
 

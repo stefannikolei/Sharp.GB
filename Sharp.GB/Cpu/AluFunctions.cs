@@ -10,7 +10,7 @@ namespace Sharp.GB.Cpu
         D8,
         D16,
         R8,
-        Undefined
+        Undefined,
     }
 
     public class AluFunctions
@@ -31,8 +31,8 @@ namespace Sharp.GB.Cpu
         )
         {
             return _biFunctions
-                .First(
-                    x => x.Key.Name == name && x.Key.Type1 == arg1Type && x.Key.Type2 == arg2Type
+                .First(x =>
+                    x.Key.Name == name && x.Key.Type1 == arg1Type && x.Key.Type2 == arg2Type
                 )
                 .Value;
         }

@@ -259,7 +259,7 @@
             0x3E,
             0x01,
             0xE0,
-            0x50
+            0x50,
         ];
 
         public static int[] GameboyColor =
@@ -2311,7 +2311,7 @@
             0x00,
             0x00,
             0x00,
-            0x00
+            0x00,
         ];
     }
 }

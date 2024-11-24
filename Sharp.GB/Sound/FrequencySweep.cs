@@ -16,7 +16,8 @@ public class FrequencySweep
 
     private int _shadowFreq;
 
-    private int _nr13, _nr14;
+    private int _nr13,
+        _nr14;
 
     private int _i;
 

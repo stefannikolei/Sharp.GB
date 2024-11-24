@@ -10,10 +10,12 @@ namespace Sharp.GB.Memory
         private readonly int _targetStart;
         private readonly int _length;
 
-        public ShadowAddressSpace(IAddressSpace addressSpace,
+        public ShadowAddressSpace(
+            IAddressSpace addressSpace,
             int echoStart,
             int targetStart,
-            int length)
+            int length
+        )
         {
             _addressSpace = addressSpace;
             _echoStart = echoStart;
@@ -25,7 +27,6 @@ namespace Sharp.GB.Memory
         {
             return address >= _echoStart && address < _echoStart + _length;
         }
-
 
         public void SetByte(int address, int value)
         {

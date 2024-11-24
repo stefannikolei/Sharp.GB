@@ -55,7 +55,7 @@ public class Sound : IAddressSpace
         0x00,
         0x00,
         0x00,
-        0x00
+        0x00,
     ];
 
     private readonly AbstractSoundMode[] _allModes = new AbstractSoundMode[4];

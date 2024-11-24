@@ -18,7 +18,13 @@ namespace Sharp.GB.Memory.cart.Type
         private int _selectedRomBank = 1;
         private bool _ramWriteEnabled;
 
-        public Mbc5(IReadOnlyList<int> cartridge, CartridgeType type, IBattery battery, int romBanks, int ramBanks)
+        public Mbc5(
+            IReadOnlyList<int> cartridge,
+            CartridgeType type,
+            IBattery battery,
+            int romBanks,
+            int ramBanks
+        )
         {
             _cartridge = cartridge;
             _ramBanks = ramBanks;
@@ -36,8 +42,8 @@ namespace Sharp.GB.Memory.cart.Type
 
         public bool Accepts(int address)
         {
-            return (address >= 0x0000 && address < 0x8000) ||
-                   (address >= 0xa000 && address < 0xc000);
+            return (address >= 0x0000 && address < 0x8000)
+                || (address >= 0xa000 && address < 0xc000);
         }
 
         public void SetByte(int address, int value)

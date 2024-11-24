@@ -46,7 +46,9 @@ public class VolumeEnvelope
             return;
         }
 
-        if ((_volume == 0 && _envelopeDirection == -1) || (_volume == 15 && _envelopeDirection == 1))
+        if (
+            (_volume == 0 && _envelopeDirection == -1) || (_volume == 15 && _envelopeDirection == 1)
+        )
         {
             _finished = true;
             return;

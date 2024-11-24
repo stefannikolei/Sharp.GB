@@ -21,11 +21,7 @@ namespace Sharp.GB.Memory.cart.Type
 
         private bool _clockLatched;
 
-        public Mbc3(
-            IReadOnlyList<int> cartridge,
-            IBattery battery,
-            int ramBanks
-        )
+        public Mbc3(IReadOnlyList<int> cartridge, IBattery battery, int ramBanks)
         {
             _cartridge = cartridge;
             _ramBanks = ramBanks;

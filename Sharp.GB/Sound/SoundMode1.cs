@@ -14,7 +14,8 @@ public class SoundMode1 : AbstractSoundMode
 
     private VolumeEnvelope _volumeEnvelope;
 
-    public SoundMode1(bool gbc) : base(0xff10, 64, gbc)
+    public SoundMode1(bool gbc)
+        : base(0xff10, 64, gbc)
     {
         _frequencySweep = new();
         _volumeEnvelope = new();

@@ -20,18 +20,25 @@ namespace Sharp.GB.Common
             DisableBatterySaves = true;
         }
 
-        public GameboyOptions(string romFileName, ICollection<string> parameters, ICollection<string> shortParams)
+        public GameboyOptions(
+            string romFileName,
+            ICollection<string> parameters,
+            ICollection<string> shortParams
+        )
         {
             RomFileName = romFileName;
             ForceDmg = parameters.Contains("force-dmg") || shortParams.Contains("d");
             ForceCgb = parameters.Contains("force-cgb") || shortParams.Contains("c");
             if (ForceDmg && ForceCgb)
             {
-                throw new ArgumentException("force-dmg and force-cgb options are can't be used together");
+                throw new ArgumentException(
+                    "force-dmg and force-cgb options are can't be used together"
+                );
             }
 
             UseBootstrap = parameters.Contains("use-bootstrap") || shortParams.Contains("b");
-            DisableBatterySaves = parameters.Contains("disable-battery-saves") || shortParams.Contains("db");
+            DisableBatterySaves =
+                parameters.Contains("disable-battery-saves") || shortParams.Contains("db");
             Debug = parameters.Contains("debug");
             Headless = parameters.Contains("headless");
         }

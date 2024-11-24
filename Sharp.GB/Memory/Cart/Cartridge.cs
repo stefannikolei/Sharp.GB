@@ -151,7 +151,7 @@ namespace Sharp.GB.Memory.cart
             {
                 0x80 => GameboyType.Universal,
                 0xc0 => GameboyType.Cgb,
-                _ => GameboyType.NonCgb
+                _ => GameboyType.NonCgb,
             };
         }
 
@@ -170,7 +170,7 @@ namespace Sharp.GB.Memory.cart
                 0x52 => 72,
                 0x53 => 80,
                 0x54 => 96,
-                _ => throw new ArgumentException("Unsupported ROM size: " + id)
+                _ => throw new ArgumentException("Unsupported ROM size: " + id),
             };
         }
 
@@ -183,7 +183,7 @@ namespace Sharp.GB.Memory.cart
                 2 => 1,
                 3 => 4,
                 4 => 16,
-                _ => throw new ArgumentException("Unsupported RAM size: " + id)
+                _ => throw new ArgumentException("Unsupported RAM size: " + id),
             };
         }
 

@@ -9,7 +9,10 @@ namespace Sharp.GB.Memory.cart.Battery
 
         public FileBattery(string romFileName)
         {
-            _saveFilePath = Path.GetFullPath(romFileName) + Path.GetFileNameWithoutExtension(romFileName) + ".sav";
+            _saveFilePath =
+                Path.GetFullPath(romFileName)
+                + Path.GetFileNameWithoutExtension(romFileName)
+                + ".sav";
         }
 
         public void LoadRam(int[] ram)
@@ -43,7 +46,6 @@ namespace Sharp.GB.Memory.cart.Battery
         {
             throw new NotImplementedException();
         }
-
 
         private void SaveClock(long[] clockData)
         {

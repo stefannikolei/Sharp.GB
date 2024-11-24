@@ -4,6 +4,6 @@
     {
         Universal,
         Cgb,
-        NonCgb
+        NonCgb,
     }
 }

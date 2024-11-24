@@ -21,7 +21,7 @@ public class Cpu
         IrqPush2,
         IrqJump,
         Stopped,
-        Halted
+        Halted,
     }
 
     private readonly Registers _registers;

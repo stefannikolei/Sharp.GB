@@ -18,7 +18,7 @@ namespace Sharp.GB.Cpu.OpCode
             HashSet<Func<Flags, int, int>> oemBugFunctions =
             [
                 s_alu.FindAluFunction("INC", DataType.D16),
-                s_alu.FindAluFunction("DEC", DataType.D16)
+                s_alu.FindAluFunction("DEC", DataType.D16),
             ];
             s_oemBug = oemBugFunctions.ToImmutableHashSet();
         }

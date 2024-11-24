@@ -12,10 +12,14 @@ namespace Sharp.GB.Gpu
             Pop2,
             Push1,
             Push2,
-            LdHl
+            LdHl,
         }
 
-        public static void CorruptOam(IAddressSpace addressSpace, CorruptionType? type, int ticksInLine)
+        public static void CorruptOam(
+            IAddressSpace addressSpace,
+            CorruptionType? type,
+            int ticksInLine
+        )
         {
             int cpuCycle = (ticksInLine + 1) / 4 + 1;
 

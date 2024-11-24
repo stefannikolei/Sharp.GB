@@ -12,7 +12,11 @@ namespace Sharp.GB.Memory.Extensions
                 RegisterType.Read => true,
                 RegisterType.Write => false,
                 RegisterType.ReadWrite => true,
-                _ => throw new ArgumentOutOfRangeException(nameof(registerType), registerType, null)
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(registerType),
+                    registerType,
+                    null
+                ),
             };
         }
 
@@ -23,7 +27,11 @@ namespace Sharp.GB.Memory.Extensions
                 RegisterType.Read => false,
                 RegisterType.Write => true,
                 RegisterType.ReadWrite => true,
-                _ => throw new ArgumentOutOfRangeException(nameof(registerType), registerType, null)
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(registerType),
+                    registerType,
+                    null
+                ),
             };
         }
     }

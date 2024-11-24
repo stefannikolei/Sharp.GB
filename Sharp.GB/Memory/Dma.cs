@@ -50,7 +50,6 @@ namespace Sharp.GB.Memory
             }
         }
 
-
         public void SetByte(int address, int value)
         {
             _from = value * 0x100;
@@ -59,7 +58,6 @@ namespace Sharp.GB.Memory
             _transferInProgress = true;
             _regValue = value;
         }
-
 
         public int GetByte(int address)
         {

@@ -74,7 +74,7 @@ public abstract class Argument
         new L(),
         new Pc(),
         new R8(),
-        new Sp()
+        new Sp(),
     ];
 
     public static Argument Parse(string value)

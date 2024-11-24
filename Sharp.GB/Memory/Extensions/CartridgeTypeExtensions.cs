@@ -57,7 +57,9 @@ namespace Sharp.GB.Memory.Extensions
 
         private static bool NameContainsSegment(CartridgeType cartridgeType, string value)
         {
-            return cartridgeType.ToString().Contains(value, StringComparison.InvariantCultureIgnoreCase);
+            return cartridgeType
+                .ToString()
+                .Contains(value, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

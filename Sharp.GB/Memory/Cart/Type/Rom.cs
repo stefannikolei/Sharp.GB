@@ -14,13 +14,11 @@ namespace Sharp.GB.Memory.cart.Type
 
         public bool Accepts(int address)
         {
-            return (address >= 0x0000 && address < 0x8000) ||
-                   (address >= 0xa000 && address < 0xc000);
+            return (address >= 0x0000 && address < 0x8000)
+                || (address >= 0xa000 && address < 0xc000);
         }
 
-        public void SetByte(int address, int value)
-        {
-        }
+        public void SetByte(int address, int value) { }
 
         public int GetByte(int address)
         {

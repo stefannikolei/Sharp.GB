@@ -137,13 +137,13 @@ public class ShowOpcode : ICommand
         }
 
         string compactedArg = CompactOpcodeLabel(arg);
-        Opcode? opcode = OpCodes.Commands.FirstOrDefault(
-            o => o != null && compactedArg == CompactOpcodeLabel(o.GetLabel())
+        Opcode? opcode = OpCodes.Commands.FirstOrDefault(o =>
+            o != null && compactedArg == CompactOpcodeLabel(o.GetLabel())
         );
         if (opcode == null)
         {
-            opcode = OpCodes.ExtCommands.FirstOrDefault(
-                o => o != null && compactedArg == CompactOpcodeLabel(o.GetLabel())
+            opcode = OpCodes.ExtCommands.FirstOrDefault(o =>
+                o != null && compactedArg == CompactOpcodeLabel(o.GetLabel())
             );
         }
         return opcode!;

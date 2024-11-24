@@ -4,6 +4,6 @@
     {
         Read,
         Write,
-        ReadWrite
+        ReadWrite,
     }
 }

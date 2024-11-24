@@ -22,7 +22,7 @@ public class CommandArgument
     {
         _name = name;
         _required = required;
-        _allowedValues = [..allowedValues];
+        _allowedValues = [.. allowedValues];
     }
 
     public string GetName()

@@ -143,5 +143,5 @@ public class SerialPort : IAddressSpace
 public enum ClockType
 {
     Internal,
-    External
+    External,
 }

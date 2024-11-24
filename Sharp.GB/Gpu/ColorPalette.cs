@@ -19,7 +19,7 @@ namespace Sharp.GB.Gpu
             new int[4],
             new int[4],
             new int[4],
-            new int[4]
+            new int[4],
         ];
 
         private int _index;

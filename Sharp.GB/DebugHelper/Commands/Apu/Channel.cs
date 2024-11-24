@@ -23,7 +23,7 @@ public class Channel : ICommand
 
     public void Run(CommandPattern.ParsedCommandLine commandLine)
     {
-        HashSet<string> channels = [..commandLine.GetRemainingArguments()];
+        HashSet<string> channels = [.. commandLine.GetRemainingArguments()];
         for (int i = 1; i <= 4; i++)
         {
             _sound.EnableChannel(i - 1, channels.Contains(i.ToString()));
