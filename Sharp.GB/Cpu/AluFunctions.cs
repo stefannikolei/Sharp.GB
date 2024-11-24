@@ -484,16 +484,27 @@ namespace Sharp.GB.Cpu
             public override bool Equals(object? o)
             {
                 if (this == o)
+                {
                     return true;
+                }
+
                 if (o == null || GetType() != o.GetType())
+                {
                     return false;
+                }
 
                 FunctionKey that = (FunctionKey)o;
 
                 if (!Name.Equals(that.Name))
+                {
                     return false;
+                }
+
                 if (!Type1.Equals(that.Type1))
+                {
                     return false;
+                }
+
                 return Type2 != null ? Type2.Equals(that.Type2) : that.Type2 == null;
             }
 
