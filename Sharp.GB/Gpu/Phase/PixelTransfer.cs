@@ -1,5 +1,4 @@
-﻿using System;
-using Sharp.GB.Memory;
+﻿using Sharp.GB.Memory;
 using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Gpu.Phase

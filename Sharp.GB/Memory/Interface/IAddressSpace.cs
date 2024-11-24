@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sharp.GB.Memory.Interface
+﻿namespace Sharp.GB.Memory.Interface
 {
     public interface IAddressSpace
     {

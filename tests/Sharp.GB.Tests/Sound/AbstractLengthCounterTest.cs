@@ -1,7 +1,3 @@
-using System;
-using Sharp.GB;
-using Sharp.GB.Sound;
-
 public abstract class AbstractLengthCounterTest
 {
     protected int _maxlen;

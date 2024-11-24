@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Gpu

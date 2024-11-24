@@ -1,5 +1,3 @@
-using System;
-
 public class VirtualClock : IClock
 {
     private long _clock = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();

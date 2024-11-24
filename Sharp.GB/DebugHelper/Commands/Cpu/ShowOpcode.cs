@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Sharp.GB.Cpu;
 using Sharp.GB.Cpu.Op;
 using Sharp.GB.Cpu.OpCode;

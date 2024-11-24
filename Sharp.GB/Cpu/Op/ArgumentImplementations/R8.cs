@@ -1,4 +1,3 @@
-using System;
 using Sharp.GB.Common;
 using Sharp.GB.Memory.Interface;
 

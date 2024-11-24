@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Sharp.GB.Cpu.Op;
 using Sharp.GB.Cpu.Op.ArgumentImplementations;
 using Sharp.GB.Cpu.Op.Ops;

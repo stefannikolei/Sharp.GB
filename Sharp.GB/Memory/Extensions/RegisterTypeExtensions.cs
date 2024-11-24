@@ -1,5 +1,4 @@
-﻿using System;
-using Sharp.GB.Memory.Enums;
+﻿using Sharp.GB.Memory.Enums;
 
 namespace Sharp.GB.Memory.Extensions
 {

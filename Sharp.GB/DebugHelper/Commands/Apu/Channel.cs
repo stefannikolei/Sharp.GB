@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Sharp.GB.Debug;
 using Sharp.GB.Sound;
 

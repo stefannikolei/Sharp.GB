@@ -1,4 +1,3 @@
-using System;
 using Sharp.GB.Debug;
 
 public class Quit : ICommand

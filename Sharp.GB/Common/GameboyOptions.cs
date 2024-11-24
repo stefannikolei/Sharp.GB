@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace Sharp.GB.Common
+﻿namespace Sharp.GB.Common
 {
     public class GameboyOptions
     {

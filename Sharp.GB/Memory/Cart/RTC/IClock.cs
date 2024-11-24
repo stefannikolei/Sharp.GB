@@ -1,6 +1,4 @@
-﻿using System;
-
-public interface IClock
+﻿public interface IClock
 {
     long CurrentTimeMillis();
 }

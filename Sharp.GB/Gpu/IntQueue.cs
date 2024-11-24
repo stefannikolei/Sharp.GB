@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Sharp.GB.Gpu
+﻿namespace Sharp.GB.Gpu
 {
     public class IntQueue
     {

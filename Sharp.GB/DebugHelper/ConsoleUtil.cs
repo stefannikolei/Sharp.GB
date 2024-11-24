@@ -1,5 +1,3 @@
-using System;
-
 public static class ConsoleUtil
 {
     public static void PrintSeparator(int width)

@@ -1,4 +1,3 @@
-using System;
 using Sharp.GB.Gpu;
 using Sharp.GB.Memory.Interface;
 

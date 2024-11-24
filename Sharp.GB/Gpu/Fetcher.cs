@@ -1,5 +1,4 @@
-﻿using System;
-using Sharp.GB.Common;
+﻿using Sharp.GB.Common;
 using Sharp.GB.Gpu.Phase;
 using Sharp.GB.Memory;
 using Sharp.GB.Memory.Interface;

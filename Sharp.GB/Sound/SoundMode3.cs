@@ -1,4 +1,3 @@
-using System;
 using Sharp.GB.Memory;
 
 namespace Sharp.GB.Sound;

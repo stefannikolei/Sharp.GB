@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace Sharp.GB.Memory.cart.Battery
+﻿namespace Sharp.GB.Memory.cart.Battery
 {
     public class FileBattery : IBattery
     {

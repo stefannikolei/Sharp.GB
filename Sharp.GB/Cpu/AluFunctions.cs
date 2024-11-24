@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Sharp.GB.Common;
+﻿using Sharp.GB.Common;
 
 namespace Sharp.GB.Cpu
 {
@@ -465,7 +462,7 @@ namespace Sharp.GB.Cpu
 
             public readonly DataType Type1;
 
-            public readonly DataType Type2;
+            public readonly DataType? Type2;
 
             public FunctionKey(string name, DataType type1, DataType type2)
             {

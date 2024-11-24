@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Sharp.GB.Debug;
@@ -89,7 +86,7 @@ public class CommandPattern
     private static List<string> Split(string str)
     {
         List<string> split = [];
-        bool isEscaped = false;
+        // bool isEscaped = false;
         StringBuilder currentArg = new StringBuilder();
         for (int i = 0; i <= str.Length; i++)
         {

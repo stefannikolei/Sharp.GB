@@ -1,5 +1,3 @@
-using System;
-using Sharp.GB;
 using Sharp.GB.Cpu;
 using Sharp.GB.Memory.Interface;
 using Sharp.GB.Serial;

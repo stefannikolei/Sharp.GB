@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using Sharp.GB.Common;
 using Sharp.GB.Controller;
 using Sharp.GB.Cpu;

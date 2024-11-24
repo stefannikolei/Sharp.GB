@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Sharp.GB.Cpu.Op;
 using Sharp.GB.Cpu.OpCode;
 using Sharp.GB.Gpu;

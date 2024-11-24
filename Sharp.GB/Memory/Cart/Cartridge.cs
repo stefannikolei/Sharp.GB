@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Sharp.GB.Common;
 using Sharp.GB.Memory.cart.Battery;
 using Sharp.GB.Memory.cart.Type;

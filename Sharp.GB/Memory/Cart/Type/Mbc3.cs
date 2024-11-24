@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Sharp.GB.Memory.cart.Battery;
+﻿using Sharp.GB.Memory.cart.Battery;
 using Sharp.GB.Memory.cart.RTC;
 using Sharp.GB.Memory.Interface;
 

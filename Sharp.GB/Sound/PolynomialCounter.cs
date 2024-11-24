@@ -1,5 +1,3 @@
-using System;
-
 namespace Sharp.GB.Sound;
 
 public class PolynomialCounter

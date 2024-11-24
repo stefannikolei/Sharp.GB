@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Sharp.GB.Memory.Interface;
+﻿using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Memory
 {

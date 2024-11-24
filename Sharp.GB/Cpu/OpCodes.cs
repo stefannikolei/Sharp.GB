@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Sharp.GB.Cpu.OpCode;
+﻿using Sharp.GB.Cpu.OpCode;
 
 namespace Sharp.GB.Cpu
 {

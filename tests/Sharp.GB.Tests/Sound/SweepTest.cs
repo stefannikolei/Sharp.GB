@@ -1,8 +1,3 @@
-using System;
-using Sharp.GB;
-using Sharp.GB.Sound;
-using Xunit;
-
 public class SweepTest
 {
     private readonly FrequencySweep _sweep = new FrequencySweep();

@@ -1,5 +1,4 @@
-﻿using System;
-using Sharp.GB.Memory.cart;
+﻿using Sharp.GB.Memory.cart;
 
 namespace Sharp.GB.Memory.Extensions
 {

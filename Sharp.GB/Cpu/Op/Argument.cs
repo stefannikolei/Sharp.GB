@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Sharp.GB.Cpu;
 using Sharp.GB.Cpu.Op.ArgumentImplementations;
 using Sharp.GB.Memory.Interface;
