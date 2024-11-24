@@ -4,7 +4,12 @@ using Sharp.GB.Memory.Interface;
 namespace Sharp.GB.Cpu.Op.Ops;
 
 // TODO: lastDataType probably needs to be from the execution
-public class AluOp(Func<Flags, int, int, int> func, Argument arg2, string operation, DataType lastDataType) : IOp
+public class AluOp(
+    Func<Flags, int, int, int> func,
+    Argument arg2,
+    string operation,
+    DataType lastDataType
+) : IOp
 {
     public bool ReadsMemory()
     {
@@ -26,11 +31,11 @@ public class AluOp(Func<Flags, int, int, int> func, Argument arg2, string operat
     {
         if (lastDataType == DataType.D16)
         {
-            return string.Format("%s([__],%s) → [__]", operation, arg2);
+            return $"{operation}([__],{arg2}) → [__]";
         }
         else
         {
-            return string.Format("%s([_],%s) → [_]", operation, arg2);
+            return $"{operation}([_],{arg2}) → [_]";
         }
     }
 }

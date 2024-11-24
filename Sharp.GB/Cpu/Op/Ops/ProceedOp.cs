@@ -24,6 +24,6 @@ public class ProceedOp(string condition) : IOp
 
     public override string ToString()
     {
-        return string.Format("? %s:", condition);
+        return $"? {condition}:";
     }
 }

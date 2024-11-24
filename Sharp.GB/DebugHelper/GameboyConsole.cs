@@ -11,7 +11,7 @@ public class GameboyConsole
 {
     private readonly Queue<CommandExecution> _commandBuffer = [];
 
-    private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(0);
+    private readonly SemaphoreSlim _semaphore = new(0);
 
     private volatile bool _isStarted;
 
@@ -50,7 +50,7 @@ public class GameboyConsole
                     if (cmd.GetPattern().Matches(line))
                     {
                         CommandPattern.ParsedCommandLine parsed = cmd.GetPattern().Parse(line);
-                        _commandBuffer.Enqueue(new CommandExecution(cmd, parsed));
+                        _commandBuffer.Enqueue(new(cmd, parsed));
                         _semaphore.Wait();
                     }
                 }
@@ -84,8 +84,8 @@ public class GameboyConsole
 
         public CommandExecution(ICommand command, CommandPattern.ParsedCommandLine arguments)
         {
-            this._command = command;
-            this._arguments = arguments;
+            _command = command;
+            _arguments = arguments;
         }
 
         public void Run()

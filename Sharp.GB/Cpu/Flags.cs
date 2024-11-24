@@ -63,7 +63,7 @@ namespace Sharp.GB.Cpu
         public void SetFlagsByte(int flags)
         {
             //checkByteArgument("flags", flags);
-            this._flags = flags & 0xf0;
+            _flags = flags & 0xf0;
         }
 
         public override string ToString()

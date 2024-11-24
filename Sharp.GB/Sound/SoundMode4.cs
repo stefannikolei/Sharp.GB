@@ -8,13 +8,13 @@ public class SoundMode4 : AbstractSoundMode
 
     private int _lastResult;
 
-    private Lfsr _lfsr = new Lfsr();
+    private Lfsr _lfsr = new();
 
     public SoundMode4(bool gbc)
         : base(0xff1f, 64, gbc)
     {
-        _volumeEnvelope = new VolumeEnvelope();
-        _polynomialCounter = new PolynomialCounter();
+        _volumeEnvelope = new();
+        _polynomialCounter = new();
     }
 
     public override void Start()

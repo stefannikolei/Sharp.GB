@@ -71,12 +71,12 @@ public class Cpu
         SpeedMode speedMode
     )
     {
-        _registers = new Registers();
-        this._addressSpace = addressSpace;
-        this._interruptManager = interruptManager;
-        this._gpu = gpu;
-        this._display = display;
-        this._speedMode = speedMode;
+        _registers = new();
+        _addressSpace = addressSpace;
+        _interruptManager = interruptManager;
+        _gpu = gpu;
+        _display = display;
+        _speedMode = speedMode;
     }
 
     public void Tick()

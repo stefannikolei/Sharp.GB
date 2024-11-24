@@ -20,8 +20,8 @@ public abstract class AbstractSoundMode : IAddressSpace
     public AbstractSoundMode(int offset, int length, bool gbc)
     {
         Offset = offset;
-        this._length = new LengthCounter(length);
-        this.Gbc = gbc;
+        _length = new(length);
+        Gbc = gbc;
     }
 
     public abstract int Tick();

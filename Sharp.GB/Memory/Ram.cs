@@ -25,7 +25,7 @@ namespace Sharp.GB.Memory
 
         public static Ram CreateShadow(int offset, int length, Ram ram)
         {
-            return new Ram(offset, length, ram);
+            return new(offset, length, ram);
         }
 
         public bool Accepts(int address)

@@ -11,7 +11,6 @@ public class PushOp(Func<Flags, int, int> dec) : IOp
         return true;
     }
 
-
     public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
     {
         registers.SetSp(dec.Invoke(registers.GetFlags(), registers.GetSp()));
@@ -26,6 +25,6 @@ public class PushOp(Func<Flags, int, int> dec) : IOp
 
     public override string ToString()
     {
-        return string.Format("[_ ] → (SP--)");
+        return "[_ ] → (SP--)";
     }
 }

@@ -5,7 +5,6 @@ using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Cpu.Op.Ops;
 
-// TODO: lastDataType probably needs to be from the execution
 public class AluHlOp(Func<Flags, int, int> func) : IOp
 {
     public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int value)
@@ -20,6 +19,6 @@ public class AluHlOp(Func<Flags, int, int> func) : IOp
 
     public override string ToString()
     {
-        return string.Format("%s(HL) → [__]");
+        return "%s(HL) → [__]";
     }
 }

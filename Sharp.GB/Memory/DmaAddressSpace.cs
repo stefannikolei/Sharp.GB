@@ -9,7 +9,7 @@ namespace Sharp.GB.Memory
 
         public DmaAddressSpace(IAddressSpace addressSpace)
         {
-            this._addressSpace = addressSpace;
+            _addressSpace = addressSpace;
         }
 
         public bool Accepts(int address)

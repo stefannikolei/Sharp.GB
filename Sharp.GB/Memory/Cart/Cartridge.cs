@@ -57,7 +57,7 @@ namespace Sharp.GB.Memory.cart
             }
             else if (cartridgeType.IsMbc3())
             {
-                _addressSpace = new Mbc3(rom, cartridgeType, battery, romBanks, ramBanks);
+                _addressSpace = new Mbc3(rom, battery, ramBanks);
             }
             else if (cartridgeType.IsMbc5())
             {

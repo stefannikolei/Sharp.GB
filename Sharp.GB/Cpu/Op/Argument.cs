@@ -20,10 +20,10 @@ public abstract class Argument
     protected Argument(string label, int operandLength, bool memory, DataType dataType)
     {
         // TODO: "" must be replaced with the Implementationname
-        this._label = label == null ? "" : label;
-        this._operandLength = operandLength;
-        this._memory = memory;
-        this._dataType = dataType;
+        _label = label == null ? "" : label;
+        _operandLength = operandLength;
+        _memory = memory;
+        _dataType = dataType;
     }
 
     public int GetOperandLength()

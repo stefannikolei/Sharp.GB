@@ -9,14 +9,14 @@ public interface IButtonListener
 
 public class Button
 {
-    public static Button Right => new Button(0x01, 0x10);
-    public static Button Left => new Button(0x02, 0x10);
-    public static Button Up => new Button(0x04, 0x10);
-    public static Button Down => new Button(0x08, 0x10);
-    public static Button A => new Button(0x01, 0x20);
-    public static Button B => new Button(0x02, 0x20);
-    public static Button Select => new Button(0x04, 0x20);
-    public static Button Start => new Button(0x08, 0x20);
+    public static Button Right => new(0x01, 0x10);
+    public static Button Left => new(0x02, 0x10);
+    public static Button Up => new(0x04, 0x10);
+    public static Button Down => new(0x08, 0x10);
+    public static Button A => new(0x01, 0x20);
+    public static Button B => new(0x02, 0x20);
+    public static Button Select => new(0x04, 0x20);
+    public static Button Start => new(0x08, 0x20);
 
     private readonly int _mask;
 
@@ -24,8 +24,8 @@ public class Button
 
     Button(int mask, int line)
     {
-        this._mask = mask;
-        this._line = line;
+        _mask = mask;
+        _line = line;
     }
 
     public int GetMask()

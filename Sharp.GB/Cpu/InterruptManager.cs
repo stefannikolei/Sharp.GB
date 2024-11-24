@@ -6,18 +6,18 @@ namespace Sharp.GB.Cpu
     public class InterruptType
     {
         public static List<InterruptType> All => [VBlank, Lcdc, Timer, Serial, P1013];
-        public static InterruptType VBlank => new InterruptType(0x0040, 0);
-        public static InterruptType Lcdc => new InterruptType(0x0048, 1);
-        public static InterruptType Timer => new InterruptType(0x0050, 2);
-        public static InterruptType Serial => new InterruptType(0x0058, 3);
-        public static InterruptType P1013 => new InterruptType(0x0060, 4);
+        public static InterruptType VBlank => new(0x0040, 0);
+        public static InterruptType Lcdc => new(0x0048, 1);
+        public static InterruptType Timer => new(0x0050, 2);
+        public static InterruptType Serial => new(0x0058, 3);
+        public static InterruptType P1013 => new(0x0060, 4);
 
         private readonly int _handler;
         private readonly int _number;
 
         private InterruptType(int handler, int number)
         {
-            this._handler = handler;
+            _handler = handler;
             _number = number;
         }
 
@@ -48,7 +48,7 @@ namespace Sharp.GB.Cpu
 
         public InterruptManager(bool gbc)
         {
-            this._gbc = gbc;
+            _gbc = gbc;
         }
 
         public void EnableInterrupts(bool withDelay)

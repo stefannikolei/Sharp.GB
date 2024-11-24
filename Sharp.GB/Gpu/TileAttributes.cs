@@ -11,7 +11,7 @@
             s_attributes = new TileAttributes[256];
             for (int i = 0; i < 256; i++)
             {
-                s_attributes[i] = new TileAttributes(i);
+                s_attributes[i] = new(i);
             }
 
             Empty = s_attributes[0];
@@ -21,7 +21,7 @@
 
         private TileAttributes(int value)
         {
-            this._value = value;
+            _value = value;
         }
 
         public static TileAttributes ValueOf(int value)

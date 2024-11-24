@@ -25,6 +25,6 @@ public class PopOp2(Func<Flags, int, int> dec) : IOp
 
     public override string ToString()
     {
-        return string.Format("(SP++) → [_ ]");
+        return "(SP++) → [_ ]";
     }
 }

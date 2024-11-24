@@ -6,7 +6,7 @@ using System;
 
 namespace Sharp.GB.Memory.cart.RTC
 {
-    public class Clock : IClock
+    public class RealTimeClock
     {
         private long _offsetSec;
         private long _clockStart;
@@ -17,7 +17,7 @@ namespace Sharp.GB.Memory.cart.RTC
         private int _haltHours;
         private int _haltDays;
 
-        public Clock()
+        public RealTimeClock()
         {
             _clockStart = Environment.TickCount64;
         }
@@ -32,8 +32,12 @@ namespace Sharp.GB.Memory.cart.RTC
             long timestamp = clockData[10];
 
             _clockStart = timestamp * 1000;
-            _offsetSec = seconds + minutes * 60 + hours * 60 * 60 + days * 24 * 60 * 60 +
-                             daysHigh * 256 * 24 * 60 * 60;
+            _offsetSec =
+                seconds
+                + minutes * 60
+                + hours * 60 * 60
+                + days * 24 * 60 * 60
+                + daysHigh * 256 * 24 * 60 * 60;
         }
 
         public long[] Serialize()
@@ -73,7 +77,11 @@ namespace Sharp.GB.Memory.cart.RTC
             }
             else if (!halt && _halt)
             {
-                _offsetSec = _haltSeconds + _haltMinutes * 60 + _haltHours * 60 * 60 + _haltDays * 60 * 60 * 24;
+                _offsetSec =
+                    _haltSeconds
+                    + _haltMinutes * 60
+                    + _haltHours * 60 * 60
+                    + _haltDays * 60 * 60 * 24;
                 _clockStart = Environment.TickCount64;
             }
 

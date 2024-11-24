@@ -13,7 +13,7 @@ public class Channel : ICommand
 
     public Channel(Sound sound)
     {
-        this._sound = sound;
+        _sound = sound;
     }
 
     public CommandPattern GetPattern()

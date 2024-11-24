@@ -23,11 +23,11 @@ public class BasicOp(Argument arg) : IOp
     {
         if (arg.GetDataType() == DataType.D16)
         {
-            return string.Format("%s → [__]", arg.GetLabel());
+            return $"{arg.GetLabel()} → [__]";
         }
         else
         {
-            return string.Format("%s → [_]", arg.GetLabel());
+            return $"{arg.GetLabel()} → [_]";
         }
     }
 }

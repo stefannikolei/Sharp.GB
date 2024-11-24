@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionF
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EA29C013-6930-4F46-BC4C-0020979B0329}"
@@ -17,6 +18,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F377F413-3F42-4D35-8040-BF87D1306131}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharp.GB.Tests", "tests\Sharp.GB.Tests\Sharp.GB.Tests.csproj", "{956D0BEC-4AD8-4EEC-9204-CE1D6A4456B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{9E871D6E-31BA-43D6-926D-EB1A2C926F54}"
+	ProjectSection(SolutionItems) = preProject
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +48,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0ED88576-4034-45B9-88DE-5B1A0FA3D091} = {F377F413-3F42-4D35-8040-BF87D1306131}
 		{956D0BEC-4AD8-4EEC-9204-CE1D6A4456B9} = {EA29C013-6930-4F46-BC4C-0020979B0329}
+		{9E871D6E-31BA-43D6-926D-EB1A2C926F54} = {827229E1-9272-4267-BADB-0AF5A0F06EF8}
 	EndGlobalSection
 EndGlobal

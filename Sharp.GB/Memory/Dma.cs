@@ -23,9 +23,9 @@ namespace Sharp.GB.Memory
 
         public Dma(IAddressSpace addressSpace, IAddressSpace oam, SpeedMode speedMode)
         {
-            this._addressSpace = new DmaAddressSpace(addressSpace);
-            this._speedMode = speedMode;
-            this._oam = oam;
+            _addressSpace = new DmaAddressSpace(addressSpace);
+            _speedMode = speedMode;
+            _oam = oam;
         }
 
         public bool Accepts(int address)

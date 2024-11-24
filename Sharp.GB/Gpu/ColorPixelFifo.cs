@@ -2,11 +2,11 @@
 {
     public class ColorPixelFifo : IPixelFifo
     {
-        private readonly IntQueue _pixels = new IntQueue(16);
+        private readonly IntQueue _pixels = new(16);
 
-        private readonly IntQueue _palettes = new IntQueue(16);
+        private readonly IntQueue _palettes = new(16);
 
-        private readonly IntQueue _priorities = new IntQueue(16);
+        private readonly IntQueue _priorities = new(16);
 
         private readonly Lcdc _lcdc;
 
@@ -23,10 +23,10 @@
             ColorPalette oamPalette
         )
         {
-            this._lcdc = lcdc;
-            this._display = display;
-            this._bgPalette = bgPalette;
-            this._oamPalette = oamPalette;
+            _lcdc = lcdc;
+            _display = display;
+            _bgPalette = bgPalette;
+            _oamPalette = oamPalette;
         }
 
         public int GetLength()

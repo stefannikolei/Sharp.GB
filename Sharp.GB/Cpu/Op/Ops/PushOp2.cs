@@ -11,7 +11,6 @@ public class PushOp2(Func<Flags, int, int> dec) : IOp
         return true;
     }
 
-
     public int Execute(Registers registers, IAddressSpace addressSpace, int[] args, int context)
     {
         registers.SetSp(dec.Invoke(registers.GetFlags(), registers.GetSp()));
@@ -19,15 +18,13 @@ public class PushOp2(Func<Flags, int, int> dec) : IOp
         return context;
     }
 
-
     public SpriteBug.CorruptionType? CausesOemBug(Registers registers, int context)
     {
         return IOp.InOamArea(registers.GetSp()) ? SpriteBug.CorruptionType.Push2 : null;
     }
 
-
     public override string ToString()
     {
-        return string.Format("[ _] → (SP--)");
+        return "[ _] → (SP--)";
     }
 }

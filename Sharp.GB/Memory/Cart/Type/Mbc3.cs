@@ -11,10 +11,8 @@ namespace Sharp.GB.Memory.cart.Type
         private IReadOnlyList<int> _cartridge;
         private readonly int[] _ram;
         private readonly int _ramBanks;
-        private readonly CartridgeType _cartRidgeType;
         private readonly IBattery _battery;
-        private readonly IClock _clock;
-
+        private readonly RealTimeClock _clock;
 
         private int _selectedRamBank;
         private int _selectedRomBank = 1;
@@ -23,7 +21,11 @@ namespace Sharp.GB.Memory.cart.Type
 
         private bool _clockLatched;
 
-        public Mbc3(IReadOnlyList<int> cartridge, CartridgeType type, IBattery battery, int romBanks, int ramBanks)
+        public Mbc3(
+            IReadOnlyList<int> cartridge,
+            IBattery battery,
+            int ramBanks
+        )
         {
             _cartridge = cartridge;
             _ramBanks = ramBanks;
@@ -33,8 +35,7 @@ namespace Sharp.GB.Memory.cart.Type
                 _ram[i] = 0xff;
             }
 
-            _cartRidgeType = type;
-            _clock = new Clock();
+            _clock = new();
             _battery = battery;
 
             long[] clockData = new long[12];
@@ -44,8 +45,8 @@ namespace Sharp.GB.Memory.cart.Type
 
         public bool Accepts(int address)
         {
-            return (address >= 0x0000 && address < 0x8000) ||
-                   (address >= 0xa000 && address < 0xc000);
+            return (address >= 0x0000 && address < 0x8000)
+                || (address >= 0xa000 && address < 0xc000);
         }
 
         public void SetByte(int address, int value)
@@ -85,7 +86,12 @@ namespace Sharp.GB.Memory.cart.Type
 
                 _latchClockReg = value;
             }
-            else if (address >= 0xa000 && address < 0xc000 && _ramWriteEnabled && _selectedRamBank < 4)
+            else if (
+                address >= 0xa000
+                && address < 0xc000
+                && _ramWriteEnabled
+                && _selectedRamBank < 4
+            )
             {
                 int ramAddress = GetRamAddress(address);
                 if (ramAddress < _ram.Length)
@@ -93,7 +99,12 @@ namespace Sharp.GB.Memory.cart.Type
                     _ram[ramAddress] = value;
                 }
             }
-            else if (address >= 0xa000 && address < 0xc000 && _ramWriteEnabled && _selectedRamBank >= 4)
+            else if (
+                address >= 0xa000
+                && address < 0xc000
+                && _ramWriteEnabled
+                && _selectedRamBank >= 4
+            )
             {
                 SetTimer(value);
             }

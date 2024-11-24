@@ -22,11 +22,11 @@ public class AluOperationOp(Func<Flags, int, int> func, string operation, DataTy
     {
         if (lastDataType == DataType.D16)
         {
-            return string.Format("%s([__]) → [__]", operation);
+            return $"{operation}([__]) → [__]";
         }
         else
         {
-            return string.Format("%s([_]) → [_]", operation);
+            return $"{operation}([_]) → [_]";
         }
     }
 }

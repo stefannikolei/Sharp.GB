@@ -1,15 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Sharp.GB.Memory.Interface;
 
 namespace Sharp.GB.Memory
 {
     public class Mmu : IAddressSpace
     {
-        private readonly List<IAddressSpace> _spaces = new List<IAddressSpace>();
+        private readonly List<IAddressSpace> _spaces = new();
+
+        private IAddressSpace[]? _addressToSpace;
 
         public void AddAddressSpace(IAddressSpace space)
         {
             _spaces.Add(space);
+        }
+
+        public void IndexSpaces()
+        {
+            _addressToSpace = new IAddressSpace[0x10000];
+            for (int i = 0; i < _addressToSpace.Length; i++)
+            {
+                _addressToSpace[i] = VoidAddressspace.Instance;
+                foreach (IAddressSpace s in _spaces)
+                {
+                    if (s.Accepts(i))
+                    {
+                        _addressToSpace[i] = s;
+                        break;
+                    }
+                }
+            }
         }
 
         public bool Accepts(int address)
@@ -29,15 +49,11 @@ namespace Sharp.GB.Memory
 
         private IAddressSpace GetSpace(int address)
         {
-            foreach (var space in _spaces)
+            if (_addressToSpace == null)
             {
-                if (space.Accepts(address))
-                {
-                    return space;
-                }
+                throw new ArgumentException("Address spaces hasn't been indexed yet");
             }
-
-            return VoidAddressspace.Instance;
+            return _addressToSpace[address];
         }
     }
 }

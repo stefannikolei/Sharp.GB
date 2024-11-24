@@ -25,8 +25,8 @@ public class Timer : IAddressSpace
 
     public Timer(InterruptManager interruptManager, SpeedMode speedMode)
     {
-        this._speedMode = speedMode;
-        this._interruptManager = interruptManager;
+        _speedMode = speedMode;
+        _interruptManager = interruptManager;
     }
 
     public void Tick()

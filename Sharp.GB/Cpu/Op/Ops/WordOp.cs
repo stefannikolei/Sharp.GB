@@ -11,6 +11,6 @@ public class WordOp(int value) : IOp
 
     public override string ToString()
     {
-        return string.Format("0x%02X → [__]", value);
+        return $"0x{value:X2} → [__]";
     }
 }

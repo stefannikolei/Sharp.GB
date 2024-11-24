@@ -6,8 +6,8 @@ namespace Sharp.GB.Memory
 {
     public class MemoryRegisters : IAddressSpace
     {
-        private Dictionary<int, IRegister> _registers = new Dictionary<int, IRegister>();
-        private Dictionary<int, int> _values = new Dictionary<int, int>();
+        private Dictionary<int, IRegister> _registers = new();
+        private Dictionary<int, int> _values = new();
 
         public MemoryRegisters(IRegister[] registers)
         {
@@ -29,7 +29,7 @@ namespace Sharp.GB.Memory
         private MemoryRegisters(MemoryRegisters original)
         {
             _registers = original._registers;
-            _values = new Dictionary<int, int>(original._values);
+            _values = new(original._values);
         }
 
         public int this[IRegister register]
@@ -58,7 +58,7 @@ namespace Sharp.GB.Memory
 
         public MemoryRegisters Freeze()
         {
-            return new MemoryRegisters(this);
+            return new(this);
         }
 
         public int PreIncrement(IRegister register)
@@ -67,6 +67,7 @@ namespace Sharp.GB.Memory
             {
                 var value = _values[register.GetAddress()];
                 _values[register.GetAddress()] = value;
+                return value;
             }
 
             throw new ArgumentException("No valid register " + register);

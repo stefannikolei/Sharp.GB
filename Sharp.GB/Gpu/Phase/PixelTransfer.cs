@@ -38,9 +38,9 @@ namespace Sharp.GB.Gpu.Phase
             ColorPalette oamPalette
         )
         {
-            this._r = r;
-            this._lcdc = lcdc;
-            this._gbc = gbc;
+            _r = r;
+            _lcdc = lcdc;
+            _gbc = gbc;
             if (gbc)
             {
                 _fifo = new ColorPixelFifo(lcdc, display, bgPalette, oamPalette);
@@ -50,13 +50,13 @@ namespace Sharp.GB.Gpu.Phase
                 _fifo = new DmgPixelFifo(display, lcdc, r);
             }
 
-            _fetcher = new Fetcher(_fifo, videoRam0, videoRam1, oemRam, lcdc, r, gbc);
-            this._display = display;
+            _fetcher = new(_fifo, videoRam0, videoRam1, oemRam, lcdc, r, gbc);
+            _display = display;
         }
 
         public PixelTransfer Start(OamSearch.SpritePosition?[] sprites)
         {
-            this._sprites = sprites;
+            _sprites = sprites;
             _droppedPixels = 0;
             _x = 0;
             _window = false;

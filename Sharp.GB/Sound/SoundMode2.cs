@@ -15,7 +15,7 @@ public class SoundMode2 : AbstractSoundMode
     public SoundMode2(bool gbc)
         : base(0xff15, 64, gbc)
     {
-        _volumeEnvelope = new VolumeEnvelope();
+        _volumeEnvelope = new();
     }
 
     public override void Start()

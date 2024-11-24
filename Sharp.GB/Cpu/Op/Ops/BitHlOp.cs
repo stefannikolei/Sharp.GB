@@ -26,6 +26,6 @@ public class BitHlOp(int bit) : IOp
 
     public override string ToString()
     {
-        return string.Format("BIT(%d,HL)", bit);
+        return $"BIT({bit},HL)";
     }
 }

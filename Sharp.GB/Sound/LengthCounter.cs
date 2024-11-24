@@ -14,7 +14,7 @@ public class LengthCounter
 
     public LengthCounter(int fullLength)
     {
-        this._fullLength = fullLength;
+        _fullLength = fullLength;
     }
 
     public void Start()
@@ -38,11 +38,11 @@ public class LengthCounter
     {
         if (length == 0)
         {
-            this._length = _fullLength;
+            _length = _fullLength;
         }
         else
         {
-            this._length = length;
+            _length = length;
         }
     }
 
@@ -101,7 +101,7 @@ public class LengthCounter
     public override string ToString()
     {
         return string.Format(
-            "LengthCounter[l=%d,f=%d,c=%d,%s]",
+            "LengthCounter[l={0},f={1},c={2},{3}]",
             _length,
             _fullLength,
             _i,

@@ -13,7 +13,7 @@ namespace Sharp.GB.Memory
         private static readonly int s_hdma5 = 0xff55;
 
         private readonly IAddressSpace _addressSpace;
-        private readonly Ram _hdma1234 = new Ram(s_hdma1, 4);
+        private readonly Ram _hdma1234 = new(s_hdma1, 4);
 
         private Mode _gpuMode;
         private bool _transferInProgress;
@@ -26,7 +26,7 @@ namespace Sharp.GB.Memory
 
         public Hdma(IAddressSpace addressSpace)
         {
-            this._addressSpace = addressSpace;
+            _addressSpace = addressSpace;
         }
 
         public bool Accepts(int address)
@@ -106,7 +106,7 @@ namespace Sharp.GB.Memory
 
         public void OnLcdSwitch(bool lcdEnabled)
         {
-            this._lcdEnabled = lcdEnabled;
+            _lcdEnabled = lcdEnabled;
         }
 
         public bool IsTransferInProgress()

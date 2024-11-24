@@ -16,7 +16,7 @@ public class ShowHelp : ICommand
 
     public ShowHelp(List<ICommand> commands)
     {
-        this._commands = commands;
+        _commands = commands;
     }
 
     public CommandPattern GetPattern()
@@ -44,10 +44,10 @@ public class ShowHelp : ICommand
         {
             CommandPattern pattern = command.GetPattern();
             string longName = commandMap[command];
-            Console.WriteLine(string.Format("%-" + max + "s", longName));
+            Console.WriteLine("%-" + max + "s", longName);
             if (pattern.GetCommandNames().Count > 1)
             {
-                Console.WriteLine(string.Format("   %-5s", pattern.GetCommandNames()[1]));
+                Console.WriteLine("   %-5s", pattern.GetCommandNames()[1]);
             }
             else
             {

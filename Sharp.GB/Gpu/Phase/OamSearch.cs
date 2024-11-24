@@ -21,9 +21,9 @@ namespace Sharp.GB.Gpu.Phase
 
             public SpritePosition(int x, int y, int address)
             {
-                this._x = x;
-                this._y = y;
-                this._address = address;
+                _x = x;
+                _y = y;
+                _address = address;
             }
 
             public int GetX()
@@ -62,9 +62,9 @@ namespace Sharp.GB.Gpu.Phase
 
         public OamSearch(IAddressSpace oemRam, Lcdc lcdc, MemoryRegisters registers)
         {
-            this._oemRam = oemRam;
-            this._registers = registers;
-            this._lcdc = lcdc;
+            _oemRam = oemRam;
+            _registers = registers;
+            _lcdc = lcdc;
             _sprites = new SpritePosition[10];
         }
 
@@ -104,7 +104,7 @@ namespace Sharp.GB.Gpu.Phase
                         )
                     )
                     {
-                        _sprites[_spritePosIndex++] = new SpritePosition(
+                        _sprites[_spritePosIndex++] = new(
                             _spriteX,
                             _spriteY,
                             spriteAddress

@@ -352,8 +352,7 @@ namespace Sharp.GB.Cpu
             string source
         )
         {
-            return RegCmd(commands, opcode, string.Format("LD %s,%s", target, source))
-                .CopyByte(target, source);
+            return RegCmd(commands, opcode, $"LD {target},{source}").CopyByte(target, source);
         }
 
         private static OpcodeBuilder RegCmd(OpcodeBuilder[] commands, int opcode, string label)
@@ -361,7 +360,7 @@ namespace Sharp.GB.Cpu
             if (commands[opcode] != null)
             {
                 throw new ArgumentException(
-                    string.Format("Opcode %02X already exists: %s", opcode, commands[opcode])
+                    $"Opcode {opcode:X2} already exists: {commands[opcode]}"
                 );
             }
 

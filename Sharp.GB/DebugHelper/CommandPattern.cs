@@ -46,7 +46,7 @@ public class CommandPattern
     {
         string commandName = _commandNames.First(x => x.StartsWith(commandLine));
 
-        List<string> split = CommandPattern.Split(commandLine.Substring(commandName.Length));
+        List<string> split = Split(commandLine.Substring(commandName.Length));
         Dictionary<string, string> map = [];
         List<string> remaining = [];
         int i;
@@ -83,7 +83,7 @@ public class CommandPattern
         {
             remaining = split.GetRange(i, split.Count);
         }
-        return new ParsedCommandLine(map, remaining);
+        return new(map, remaining);
     }
 
     private static List<string> Split(string str)
@@ -127,7 +127,7 @@ public class CommandPattern
 
     public override string ToString()
     {
-        return string.Format("CommandPattern[%s]", _commandNames.ToString());
+        return $"CommandPattern[{_commandNames.ToString()}]";
     }
 
     public class ParsedCommandLine
@@ -141,8 +141,8 @@ public class CommandPattern
             List<string> remainingArguments
         )
         {
-            this._argumentMap = argumentMap;
-            this._remainingArguments = remainingArguments;
+            _argumentMap = argumentMap;
+            _remainingArguments = remainingArguments;
         }
 
         public string GetArgument(string name)
@@ -166,51 +166,51 @@ public class CommandPattern
 
         private Builder(string[] commandNames)
         {
-            this.CommandNames = commandNames.ToList();
+            CommandNames = commandNames.ToList();
             Arguments = [];
         }
 
         public static Builder Create(string longName)
         {
-            return new Builder([longName]);
+            return new([longName]);
         }
 
         public static Builder Create(string longName, string shortName)
         {
-            return new Builder([longName, shortName]);
+            return new([longName, shortName]);
         }
 
         public Builder WithOptionalArgument(string name)
         {
             AssertNoOptionalLastArgument();
-            Arguments.Add(new CommandArgument(name, false));
+            Arguments.Add(new(name, false));
             return this;
         }
 
         public Builder WithRequiredArgument(string name)
         {
             AssertNoOptionalLastArgument();
-            Arguments.Add(new CommandArgument(name, true));
+            Arguments.Add(new(name, true));
             return this;
         }
 
         public Builder WithOptionalValue(string name, params string[] values)
         {
             AssertNoOptionalLastArgument();
-            Arguments.Add(new CommandArgument(name, false, values.ToList()));
+            Arguments.Add(new(name, false, values.ToList()));
             return this;
         }
 
         public Builder WithRequiredValue(string name, params string[] values)
         {
             AssertNoOptionalLastArgument();
-            Arguments.Add(new CommandArgument(name, true, values.ToList()));
+            Arguments.Add(new(name, true, values.ToList()));
             return this;
         }
 
         public Builder WithDescription(string description)
         {
-            this._description = description;
+            _description = description;
             return this;
         }
 
@@ -224,7 +224,7 @@ public class CommandPattern
 
         public CommandPattern Build()
         {
-            return new CommandPattern(this);
+            return new(this);
         }
     }
 }

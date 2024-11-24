@@ -12,6 +12,6 @@ public class AluD8Op(Func<Flags, int, int, int> func, string operation, int d8Va
 
     public override string ToString()
     {
-        return string.Format("%s(%d,[_]) → [_]", operation, d8Value);
+        return $"{operation}({d8Value},[_]) → [_]";
     }
 }

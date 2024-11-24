@@ -60,7 +60,7 @@ public class Sound : IAddressSpace
 
     private readonly AbstractSoundMode[] _allModes = new AbstractSoundMode[4];
 
-    private readonly Ram _r = new Ram(0xff24, 0x03);
+    private readonly Ram _r = new(0xff24, 0x03);
 
     private readonly ISoundOutput _output;
 
@@ -76,13 +76,14 @@ public class Sound : IAddressSpace
         _allModes[1] = new SoundMode2(gbc);
         _allModes[2] = new SoundMode3(gbc);
         _allModes[3] = new SoundMode4(gbc);
-        this._output = output;
+        _output = output;
     }
 
     public void Tick()
     {
         if (!_enabled)
         {
+            _output.Play(0, 0);
             return;
         }
         for (int i = 0; i < _allModes.Length; i++)

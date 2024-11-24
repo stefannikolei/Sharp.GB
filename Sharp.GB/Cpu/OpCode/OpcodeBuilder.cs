@@ -9,7 +9,7 @@ namespace Sharp.GB.Cpu.OpCode
 {
     public class OpcodeBuilder
     {
-        private static readonly AluFunctions s_alu = new AluFunctions();
+        private static readonly AluFunctions s_alu = new();
 
         private static readonly ImmutableHashSet<Func<Flags, int, int>> s_oemBug;
 
@@ -33,8 +33,8 @@ namespace Sharp.GB.Cpu.OpCode
 
         public OpcodeBuilder(int opcode, string label)
         {
-            this._opcode = opcode;
-            this._label = label;
+            _opcode = opcode;
+            _label = label;
         }
 
         public OpcodeBuilder CopyByte(string target, string source)
@@ -170,12 +170,6 @@ namespace Sharp.GB.Cpu.OpCode
             return this;
         }
 
-        public OpcodeBuilder Op(IOp op)
-        {
-            _ops.Add(op);
-            return this;
-        }
-
         public OpcodeBuilder ExtraCycle()
         {
             _ops.Add(new ExtraCycleOp());
@@ -190,7 +184,7 @@ namespace Sharp.GB.Cpu.OpCode
 
         public Opcode Build()
         {
-            return new Opcode(this);
+            return new(this);
         }
 
         public int GetOpcode()

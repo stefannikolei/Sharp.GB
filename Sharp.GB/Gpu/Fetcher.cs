@@ -58,13 +58,13 @@ namespace Sharp.GB.Gpu
             bool gbc
         )
         {
-            this._gbc = gbc;
-            this._fifo = fifo;
-            this._videoRam0 = videoRam0;
-            this._videoRam1 = videoRam1;
-            this._oemRam = oemRam;
+            _gbc = gbc;
+            _fifo = fifo;
+            _videoRam0 = videoRam0;
+            _videoRam1 = videoRam1;
+            _oemRam = oemRam;
             _r = registers;
-            this._lcdc = lcdc;
+            _lcdc = lcdc;
         }
 
         public void Init()
@@ -85,11 +85,11 @@ namespace Sharp.GB.Gpu
             int tileLine
         )
         {
-            this._mapAddress = mapAddress;
-            this._tileDataAddress = tileDataAddress;
-            this._xOffset = xOffset;
-            this._tileIdSigned = tileIdSigned;
-            this._tileLine = tileLine;
+            _mapAddress = mapAddress;
+            _tileDataAddress = tileDataAddress;
+            _xOffset = xOffset;
+            _tileIdSigned = tileIdSigned;
+            _tileLine = tileLine;
             _fifo.Clear();
 
             _state = State.ReadTileId;
@@ -106,7 +106,7 @@ namespace Sharp.GB.Gpu
 
         public void AddSprite(OamSearch.SpritePosition sprite, int offset, int oamIndex)
         {
-            this._sprite = sprite;
+            _sprite = sprite;
             _state = State.ReadSpriteTileId;
             _spriteTileLine = _r[GpuRegister.Ly] + 16 - sprite.GetY();
             _spriteOffset = offset;

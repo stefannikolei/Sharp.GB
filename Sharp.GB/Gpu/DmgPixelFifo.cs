@@ -4,11 +4,11 @@ namespace Sharp.GB.Gpu
 {
     public class DmgPixelFifo : IPixelFifo
     {
-        private readonly IntQueue _pixels = new IntQueue(16);
+        private readonly IntQueue _pixels = new(16);
 
-        private readonly IntQueue _palettes = new IntQueue(16);
+        private readonly IntQueue _palettes = new(16);
 
-        private readonly IntQueue _pixelType = new IntQueue(16); // 0 - bg, 1 - sprite
+        private readonly IntQueue _pixelType = new(16); // 0 - bg, 1 - sprite
 
         private readonly IDisplay _display;
 
@@ -18,9 +18,9 @@ namespace Sharp.GB.Gpu
 
         public DmgPixelFifo(IDisplay display, Lcdc lcdc, MemoryRegisters registers)
         {
-            this._lcdc = lcdc;
-            this._display = display;
-            this._registers = registers;
+            _lcdc = lcdc;
+            _display = display;
+            _registers = registers;
         }
 
         public int GetLength()

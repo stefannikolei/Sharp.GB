@@ -55,8 +55,8 @@ namespace Sharp.GB.Gpu
             bool gbc
         )
         {
-            _r = new MemoryRegisters(GpuRegister.All);
-            _lcdc = new Lcdc();
+            _r = new(GpuRegister.All);
+            _lcdc = new();
             _interruptManager = interruptManager;
             _gbc = gbc;
             _videoRam0 = new Ram(0x8000, 0x2000);
@@ -72,12 +72,12 @@ namespace Sharp.GB.Gpu
             _oamRam = oamRam;
             _dma = dma;
 
-            _bgPalette = new ColorPalette(0xff68);
-            _oamPalette = new ColorPalette(0xff6a);
+            _bgPalette = new(0xff68);
+            _oamPalette = new(0xff6a);
             _oamPalette.FillWithFf();
 
-            _oamSearchPhase = new OamSearch(oamRam, _lcdc, _r);
-            _pixelTransferPhase = new PixelTransfer(
+            _oamSearchPhase = new(oamRam, _lcdc, _r);
+            _pixelTransferPhase = new(
                 _videoRam0,
                 _videoRam1,
                 oamRam,
@@ -88,8 +88,8 @@ namespace Sharp.GB.Gpu
                 _bgPalette,
                 _oamPalette
             );
-            _hBlankPhase = new HBlankPhase();
-            _vBlankPhase = new VBlankPhase();
+            _hBlankPhase = new();
+            _vBlankPhase = new();
 
             _mode = Mode.OamSearch;
             _phase = _oamSearchPhase.Start();

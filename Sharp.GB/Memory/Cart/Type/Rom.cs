@@ -9,7 +9,7 @@ namespace Sharp.GB.Memory.cart.Type
 
         public Rom(IReadOnlyList<int> rom, CartridgeType type, int romBanks, int ramBanks)
         {
-            this._rom = rom;
+            _rom = rom;
         }
 
         public bool Accepts(int address)

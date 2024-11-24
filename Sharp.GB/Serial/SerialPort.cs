@@ -1,30 +1,36 @@
 using System;
-using System.IO;
+using Sharp.GB;
 using Sharp.GB.Cpu;
 using Sharp.GB.Memory.Interface;
-
-namespace Sharp.GB.Serial;
+using Sharp.GB.Serial;
 
 public class SerialPort : IAddressSpace
 {
-    private readonly InterruptManager _interruptManager;
     private readonly ISerialEndpoint _serialEndpoint;
-    private readonly SpeedMode _speedMode;
+
+    private readonly InterruptManager _interruptManager;
+
+    private readonly bool _gbc;
 
     private int _sb;
+
     private int _sc;
+
     private bool _transferInProgress;
+
     private int _divider;
 
-    public SerialPort(
-        InterruptManager interruptManager,
-        ISerialEndpoint serialEndpoint,
-        SpeedMode speedMode
-    )
+    private ClockType _clockType;
+
+    private int _speed;
+
+    private int _receivedBits;
+
+    public SerialPort(InterruptManager interruptManager, ISerialEndpoint serialEndpoint, bool gbc)
     {
         _interruptManager = interruptManager;
         _serialEndpoint = serialEndpoint;
-        _speedMode = speedMode;
+        _gbc = gbc;
     }
 
     public void Tick()
@@ -34,20 +40,30 @@ public class SerialPort : IAddressSpace
             return;
         }
 
-        if (++_divider >= Gameboy.TicksPerSec / 8192 / _speedMode.GetSpeedMode())
+        var bitToTransfer = (_sb & (1 << 7)) != 0 ? 1 : 0;
+        var incomingBit = -1;
+        if (_clockType == ClockType.External)
         {
-            _transferInProgress = false;
-            try
+            incomingBit = _serialEndpoint.Receive(bitToTransfer);
+        }
+        else
+        {
+            if (_divider++ == Gameboy.TicksPerSec / _speed)
             {
-                _sb = _serialEndpoint.Transfer(_sb);
+                _divider = 0;
+                incomingBit = _serialEndpoint.Send(bitToTransfer);
             }
-            catch (IOException)
-            {
-                // LOG.error("Can't transfer byte", e);
-                _sb = 0;
-            }
+        }
 
-            _interruptManager.RequestInterrupt(InterruptType.Serial);
+        if (incomingBit != -1)
+        {
+            _sb = (_sb << 1) & 0xff | (incomingBit & 1);
+            _receivedBits++;
+            if (_receivedBits == 8)
+            {
+                _interruptManager.RequestInterrupt(InterruptType.Serial);
+                _transferInProgress = false;
+            }
         }
     }
 
@@ -92,5 +108,40 @@ public class SerialPort : IAddressSpace
     {
         _transferInProgress = true;
         _divider = 0;
+        _clockType = GetFromSc(_sc);
+        _receivedBits = 0;
+        if (_gbc)
+        {
+            if ((_sc & (1 << 1)) == 0)
+            {
+                _speed = 8192;
+            }
+            else
+            {
+                _speed = 262144;
+            }
+        }
+        else
+        {
+            _speed = 8192;
+        }
     }
+
+    public ClockType GetFromSc(int sc)
+    {
+        if ((sc & 1) == 1)
+        {
+            return ClockType.Internal;
+        }
+        else
+        {
+            return ClockType.External;
+        }
+    }
+}
+
+public enum ClockType
+{
+    Internal,
+    External
 }

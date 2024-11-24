@@ -16,8 +16,8 @@ public class SoundMode1 : AbstractSoundMode
 
     public SoundMode1(bool gbc) : base(0xff10, 64, gbc)
     {
-        _frequencySweep = new FrequencySweep();
-        _volumeEnvelope = new VolumeEnvelope();
+        _frequencySweep = new();
+        _volumeEnvelope = new();
     }
 
     public override void Start()

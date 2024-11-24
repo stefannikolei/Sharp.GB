@@ -30,4 +30,11 @@
       <Folder Include="Memory\Cart\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="resources\**\*" />
+      <Content Include="resources\**\*.*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

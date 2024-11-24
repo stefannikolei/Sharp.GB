@@ -23,6 +23,6 @@ public class A16Op2(Argument arg) : IOp
 
     public override string ToString()
     {
-        return string.Format("[_ ] → %s", arg.GetLabel());
+        return $"[_ ] → {arg.GetLabel()}";
     }
 }

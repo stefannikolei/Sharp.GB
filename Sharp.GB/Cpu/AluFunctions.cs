@@ -43,7 +43,7 @@ namespace Sharp.GB.Cpu
             Func<Flags, int, int> function
         )
         {
-            _functions.Add(new FunctionKey(name, dataType), function);
+            _functions.Add(new(name, dataType), function);
         }
 
         private void RegisterAluFunction(
@@ -53,7 +53,7 @@ namespace Sharp.GB.Cpu
             Func<Flags, int, int, int> function
         )
         {
-            _biFunctions.Add(new FunctionKey(name, dataType1, dataType2), function);
+            _biFunctions.Add(new(name, dataType1, dataType2), function);
         }
 
         public AluFunctions()
@@ -469,14 +469,14 @@ namespace Sharp.GB.Cpu
 
             public FunctionKey(string name, DataType type1, DataType type2)
             {
-                this.Name = name;
-                this.Type1 = type1;
-                this.Type2 = type2;
+                Name = name;
+                Type1 = type1;
+                Type2 = type2;
             }
 
             public FunctionKey(string name, DataType type)
             {
-                this.Name = name;
+                Name = name;
                 Type1 = type;
                 Type2 = DataType.Undefined;
             }

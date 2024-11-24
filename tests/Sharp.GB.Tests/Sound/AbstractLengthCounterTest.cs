@@ -15,7 +15,7 @@ public abstract class AbstractLengthCounterTest
 
     public AbstractLengthCounterTest(int maxlen)
     {
-        this._maxlen = maxlen;
+        _maxlen = maxlen;
         _lengthCounter = new LengthCounter(maxlen);
     }
 

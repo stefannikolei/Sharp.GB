@@ -16,7 +16,7 @@ namespace Sharp.GB.Cpu
 
         private int _pc;
 
-        private Flags _flags = new Flags();
+        private Flags _flags = new();
 
         public int GetA()
         {
@@ -91,43 +91,43 @@ namespace Sharp.GB.Cpu
         public void SetA(int a)
         {
             // checkByteArgument("a", a);
-            this._a = a;
+            _a = a;
         }
 
         public void SetB(int b)
         {
             // checkByteArgument("b", b);
-            this._b = b;
+            _b = b;
         }
 
         public void SetC(int c)
         {
             // checkByteArgument("c", c);
-            this._c = c;
+            _c = c;
         }
 
         public void SetD(int d)
         {
             // checkByteArgument("d", d);
-            this._d = d;
+            _d = d;
         }
 
         public void SetE(int e)
         {
             // checkByteArgument("e", e);
-            this._e = e;
+            _e = e;
         }
 
         public void SetH(int h)
         {
             // checkByteArgument("h", h);
-            this._h = h;
+            _h = h;
         }
 
         public void SetL(int l)
         {
             // checkByteArgument("l", l);
-            this._l = l;
+            _l = l;
         }
 
         public void SetAf(int af)
@@ -161,13 +161,13 @@ namespace Sharp.GB.Cpu
         public void SetSp(int sp)
         {
             // checkWordArgument("sp", sp);
-            this._sp = sp;
+            _sp = sp;
         }
 
         public void SetPc(int pc)
         {
             // checkWordArgument("pc", pc);
-            this._pc = pc;
+            _pc = pc;
         }
 
         public void IncrementPc()
@@ -180,15 +180,10 @@ namespace Sharp.GB.Cpu
             _sp = (_sp - 1) & 0xffff;
         }
 
-        public void IncrementSp()
-        {
-            _sp = (_sp + 1) & 0xffff;
-        }
-
         public override string ToString()
         {
             return string.Format(
-                "AF=%04x, BC=%04x, DE=%04x, HL=%04x, SP=%04x, PC=%04x, %s",
+                "AF={0:X4}, BC={1:X4}, DE={2:X4}, HL={3:X4}, SP={4:X4}, PC={5:X4}, {6}",
                 GetAf(),
                 GetBc(),
                 GetDe(),

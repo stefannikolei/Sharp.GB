@@ -44,8 +44,8 @@ public class ShowOpcode : ICommand
 
         bool isExt = OpCodes.ExtCommands[opcode.GetOpcode()] == opcode;
 
-        List<OpDescription> ops = new List<OpDescription>();
-        Action<int, string> addOp = (c, d) => ops.Add(new OpDescription(c, d));
+        List<OpDescription> ops = new();
+        Action<int, string> addOp = (c, d) => ops.Add(new(c, d));
         if (isExt)
         {
             addOp.Invoke(4, "read opcode 0xCB");
@@ -57,7 +57,7 @@ public class ShowOpcode : ICommand
         }
         ops.AddRange(opcode.GetOps().Select(op => new OpDescription(op)));
 
-        List<OpDescription> compacted = new List<OpDescription>();
+        List<OpDescription> compacted = new();
         for (int i = 0; i < ops.Count; i++)
         {
             OpDescription o = ops[i];
@@ -179,13 +179,13 @@ public class ShowOpcode : ICommand
 
         public OpDescription(int cycles, string description)
         {
-            this.Description = description;
-            this.Cycles = cycles;
+            Description = description;
+            Cycles = cycles;
         }
 
         public void UpdateCycles(int cycles)
         {
-            this.Cycles += cycles;
+            Cycles += cycles;
         }
 
         public override string ToString()

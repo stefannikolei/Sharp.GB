@@ -13,16 +13,16 @@ public class CommandArgument
 
     public CommandArgument(string name, bool required)
     {
-        this._name = name;
-        this._required = required;
+        _name = name;
+        _required = required;
         _allowedValues = null;
     }
 
     public CommandArgument(string name, bool required, List<string> allowedValues)
     {
-        this._name = name;
-        this._required = required;
-        this._allowedValues = [..allowedValues];
+        _name = name;
+        _required = required;
+        _allowedValues = [..allowedValues];
     }
 
     public string GetName()

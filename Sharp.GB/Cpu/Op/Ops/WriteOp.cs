@@ -24,11 +24,11 @@ public class WriteOp(Argument arg) : IOp
     {
         if (arg.GetDataType() == DataType.D16)
         {
-            return string.Format("[__] → %s", arg.GetLabel());
+            return $"[__] → {arg.GetLabel()}";
         }
         else
         {
-            return string.Format("[_] → %s", arg.GetLabel());
+            return $"[_] → {arg.GetLabel()}";
         }
     }
 }
