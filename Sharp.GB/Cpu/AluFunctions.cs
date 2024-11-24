@@ -67,7 +67,7 @@ namespace Sharp.GB.Cpu
                     return result;
                 }
             );
-            RegisterAluFunction("INC", DataType.D16, (flags, arg) => (arg + 1) & 0xffff);
+            RegisterAluFunction("INC", DataType.D16, (_, arg) => (arg + 1) & 0xffff);
             RegisterAluFunction(
                 "DEC",
                 DataType.D8,
@@ -80,7 +80,7 @@ namespace Sharp.GB.Cpu
                     return result;
                 }
             );
-            RegisterAluFunction("DEC", DataType.D16, (flags, arg) => (arg - 1) & 0xffff);
+            RegisterAluFunction("DEC", DataType.D16, (_, arg) => (arg - 1) & 0xffff);
             RegisterAluFunction(
                 "ADD",
                 DataType.D16,
@@ -97,7 +97,7 @@ namespace Sharp.GB.Cpu
                 "ADD",
                 DataType.D16,
                 DataType.R8,
-                (flags, arg1, arg2) => (arg1 + arg2) & 0xffff
+                (_, arg1, arg2) => (arg1 + arg2) & 0xffff
             );
             RegisterAluFunction(
                 "ADD_SP",
@@ -446,13 +446,13 @@ namespace Sharp.GB.Cpu
                 "RES",
                 DataType.D8,
                 DataType.D8,
-                (flags, arg1, arg2) => BitUtils.ClearBit(arg1, arg2)
+                (_, arg1, arg2) => BitUtils.ClearBit(arg1, arg2)
             );
             RegisterAluFunction(
                 "SET",
                 DataType.D8,
                 DataType.D8,
-                (flags, arg1, arg2) => BitUtils.SetBit(arg1, arg2)
+                (_, arg1, arg2) => BitUtils.SetBit(arg1, arg2)
             );
         }
 

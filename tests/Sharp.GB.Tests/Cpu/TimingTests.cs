@@ -1,4 +1,3 @@
-using System.Linq;
 using Sharp.GB.Cpu;
 using Sharp.GB.Cpu.OpCode;
 using Sharp.GB.Memory;

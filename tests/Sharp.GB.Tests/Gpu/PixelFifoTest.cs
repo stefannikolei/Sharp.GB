@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Sharp.GB.Gpu;
 using Sharp.GB.Memory;
 using Xunit;

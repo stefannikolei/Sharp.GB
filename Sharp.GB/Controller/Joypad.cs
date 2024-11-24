@@ -27,6 +27,7 @@ public class Joypad : IAddressSpace
     public int GetByte(int address)
     {
         int result = _p1 | 0b11001111;
+        // TODO: Kann so noch nicht gehen mit Event regsitrierung etc
         foreach (Button b in _buttons)
         {
             if ((b.GetLine() & _p1) == 0)
