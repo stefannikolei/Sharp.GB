@@ -1,3 +1,12 @@
+using Sharp.GB.Common;
+using Sharp.GB.Controller;
+using Sharp.GB.Cpu;
+using Sharp.GB.Memory.cart;
+using Sharp.GB.Memory.Interface;
+using Sharp.GB.Serial;
+using Sharp.GB.Sound;
+using Xunit.Abstractions;
+
 public class MooneyeTestRunner
 {
     private Gameboy _gb;
@@ -8,7 +17,7 @@ public class MooneyeTestRunner
 
     public MooneyeTestRunner(FileInfo romFile, ITestOutputHelper os)
     {
-        List<string> opts = new List<string>();
+        List<string> opts = new();
         if (
             romFile.FullName.ToString().EndsWith("-C.gb")
             || romFile.FullName.ToString().EndsWith("-cgb.gb")
@@ -23,7 +32,7 @@ public class MooneyeTestRunner
         opts.Add("db");
         GameboyOptions options = new GameboyOptions(romFile.FullName, new List<string>(), opts);
         Cartridge cart = new Cartridge(options);
-        _gb = new Gameboy(
+        _gb = new(
             options,
             cart,
             NullDisplay.Instance,

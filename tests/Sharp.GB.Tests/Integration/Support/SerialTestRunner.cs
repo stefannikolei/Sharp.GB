@@ -1,3 +1,11 @@
+using System.Text;
+using Sharp.GB.Common;
+using Sharp.GB.Controller;
+using Sharp.GB.Cpu;
+using Sharp.GB.Memory.cart;
+using Sharp.GB.Serial;
+using Sharp.GB.Sound;
+
 public class SerialTestRunner : ByteReceiver
 {
     private readonly Gameboy _gb;
@@ -8,7 +16,7 @@ public class SerialTestRunner : ByteReceiver
     {
         var options = new GameboyOptions(romFile.FullName);
         var cart = new Cartridge(options);
-        _gb = new Gameboy(
+        _gb = new(
             options,
             cart,
             NullDisplay.Instance,
@@ -16,7 +24,7 @@ public class SerialTestRunner : ByteReceiver
             NullSoundOutput.Instance,
             new ByteReceivingSerialEndpoint(this)
         );
-        _text = new StringBuilder();
+        _text = new();
         _os = os;
     }
 
@@ -47,7 +55,7 @@ public class SerialTestRunner : ByteReceiver
             _os.WriteLine(outgoing);
             _os.Flush();
         }
-        catch (IOException e)
+        catch (IOException)
         {
             // Handle exception
         }
@@ -104,7 +112,7 @@ public class SerialTestRunner : ByteReceiver
             _os.Write(receivedByte);
             _os.Flush();
         }
-        catch (IOException e)
+        catch (IOException)
         {
             throw new ApplicationException();
         }

@@ -1,7 +1,15 @@
+using System.Text;
+using Sharp.GB.Common;
+using Sharp.GB.Controller;
+using Sharp.GB.Cpu;
+using Sharp.GB.Memory.cart;
+using Sharp.GB.Serial;
+using Sharp.GB.Sound;
+
 public class MemoryTestRunner
 {
     private readonly Gameboy _gb;
-    private readonly StringBuilder _text = new StringBuilder();
+    private readonly StringBuilder _text = new();
     private readonly TextWriter _os;
     private bool _testStarted = false;
 
@@ -9,7 +17,7 @@ public class MemoryTestRunner
     {
         var options = new GameboyOptions(romFile.FullName);
         var cart = new Cartridge(options);
-        _gb = new Gameboy(
+        _gb = new(
             options,
             cart,
             NullDisplay.Instance,

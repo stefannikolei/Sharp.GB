@@ -1,3 +1,5 @@
+using Sharp.GB.Sound;
+
 public abstract class AbstractLengthCounterTest
 {
     protected int _maxlen;
@@ -6,13 +8,13 @@ public abstract class AbstractLengthCounterTest
     public AbstractLengthCounterTest()
     {
         _maxlen = 256;
-        _lengthCounter = new LengthCounter(_maxlen);
+        _lengthCounter = new(_maxlen);
     }
 
     public AbstractLengthCounterTest(int maxlen)
     {
         _maxlen = maxlen;
-        _lengthCounter = new LengthCounter(maxlen);
+        _lengthCounter = new(maxlen);
     }
 
     protected void Wchn(int register, int value)
